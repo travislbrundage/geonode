@@ -487,7 +487,7 @@
     $('#keyword_search_input').bind('selectChoice', function(e, choice, keyword_autocomplete) {
           if(choice[0].children[0] == undefined) {
               $('#keyword_search_input').val(choice[0].innerHTML);
-              $scope.text_query = choice[0].innerHTML;
+              $scope.keyword_query = choice[0].innerHTML;
           }
     });
 /* Old Jquery searching being replaced by angular
@@ -515,7 +515,7 @@
     $('#region_search_input').bind('selectChoice', function(e, choice, region_autocomplete) {
           if(choice[0].children[0] == undefined) {
               $('#region_search_input').val(choice[0].innerHTML);
-              $scope.text_query = choice[0].innerHTML;
+              $scope.region_query = choice[0].innerHTML;
           }
     });
 
