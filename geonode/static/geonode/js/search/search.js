@@ -158,11 +158,31 @@
   });
 
   /*
+  * Directives
+  */
+
+  // Listener for hitting enter - This needs to be moved where the base .html can access it
+  module.directive('pressedEnter', function () {
+    return function (scope, element, attrs) {
+        element.bind("keydown keypress", function (event) {
+            if(event.which === 13) {
+                scope.$apply(function (){
+                    scope.$eval(attrs.pressedEnter);
+                });
+
+                event.preventDefault();
+            }
+        });
+    };
+  });
+
+  /*
   * Main search controller
   * Load data from api and defines the multiple and single choice handlers
   * Syncs the browser url with the selections
   */
   module.controller('geonode_search_controller', function($injector, $scope, $location, $http, Configs){
+    //$scope.view = 'content';
     $scope.query = $location.search();
     $scope.query.limit = $scope.query.limit || CLIENT_RESULTS_LIMIT;
     $scope.query.offset = $scope.query.offset || 0;
@@ -171,6 +191,7 @@
 
     //Get data from apis and make them available to the page
     function query_api(data){
+      console.log("Data: " + data);
       $http.get(Configs.url, {params: data || {}}).success(function(data){
         $scope.results = data.objects;
         $scope.total_counts = data.meta.total_count;
@@ -254,6 +275,92 @@
     }
 
     /*
+    * Quick search handling - This needs to be moved where the base .html can access it
+    */
+    $scope.quick_search = function() {
+      $scope.query['title__icontains'] = $scope.quick_search_query;
+
+      if ($location.url().substring(0, 8) == '/searchn') {
+        console.log("You're in the right place!");
+      } else {
+        $location.url('/searchn');
+      }
+      query_api($scope.query);
+    }
+
+    /*
+    * Setting the query to a single element - replaces single_choice_listener
+    */
+    $scope.set_query = function(filter, value) {
+      $scope.query = {};
+      $scope.query[filter] = value;
+      query_api($scope.query);
+    }
+
+    /*
+    * Add the query, replacing any current query
+    */
+    $scope.add_single_query = function(filter, value) {
+      $scope.query[filter] = value;
+      query_api($scope.query);
+    }
+
+    /*
+    * Add the query, appending it to any current query
+    */
+    $scope.add_query = function(filter, value) {
+      var query_entry = [];
+      if ($scope.query.hasOwnProperty(filter)) {
+        if ($scope.query[filter] instanceof Array) {
+          query_entry = $scope.query[filter];
+        } else {
+          query_entry.push($scope.query[filter]);
+        }
+        // Only add it if this value doesn't already exist
+        // Apparently this doesn't exactly work...
+        if ($scope.query[filter].indexOf(value) == -1) {
+          query_entry.push(value);
+        }
+      } else {
+        query_entry = [value];
+      }
+      $scope.query[filter] = query_entry;
+      query_api($scope.query);
+    }
+
+    /*
+    * Toggle adding/removing this filter
+    */
+    $scope.toggle_query = function(toggle, filter, value) {
+      if (toggle) {
+        $scope.add_query(filter, value);
+      } else {
+        $scope.remove_query(filter, value);
+      }
+    }
+
+    /*
+    * Remove the query
+    */
+    $scope.remove_query = function(filter, value) {
+      var query_entry = [];
+      // First check if this even exists to remove
+      if ($scope.query.hasOwnProperty(filter)) {
+        // Grab the current query
+        if ($scope.query[filter] instanceof Array) {
+          query_entry = $scope.query[filter];
+        } else {
+          query_entry.push($scope.query[filter]);
+        }
+        // Remove this value
+        query_entry.splice(query_entry.indexOf(value), 1);
+        // Update and run the query
+        $scope.query[filter] = query_entry;
+        query_api($scope.query);
+      }
+    }
+
+    /*
     * Add the selection behavior to the element, it adds/removes the 'active' class
     * and pushes/removes the value of the element from the query object
     */
@@ -293,7 +400,7 @@
         element.addClass('active');
       }
 
-      //save back the new query entry to the scope query
+      //save back 'the new query entry to the scope query
       $scope.query[data_filter] = query_entry;
 
       //if the entry is empty then delete the property from the query
@@ -330,6 +437,16 @@
       }     
     }
 
+    // Clear all filters and apply only this new one
+    $scope.single_filter = function($event) {
+      var element = $($event.target);
+      var data_filter = element.attr('data-filter');
+      var value = element.attr('data-value');
+      $scope.query = {};
+      $scope.query[data_filter] = value;
+      query_api($scope.query);
+    }
+
     /*
     * Text search management
     */
@@ -339,7 +456,7 @@
           hideAfter: 200,
           minimumCharacters: 1,
           appendAutocomplete: $('#text_search_input'),
-          placeholder: gettext('Enter your text here ...')
+          placeholder: gettext('Search for MapStories or StoryLayers ...')
     });
     $('#text_search_input').bind('selectChoice', function(e, choice, text_autocomplete) {
           if(choice[0].children[0] == undefined) {
@@ -357,6 +474,33 @@
     });
 
     /*
+    * Keyword search management
+    */
+    var keyword_autocomplete = $('#keyword_search_input').yourlabsAutocomplete({
+          url: AUTOCOMPLETE_URL_KEYWORD,
+          choiceSelector: 'span',
+          hideAfter: 200,
+          minimumCharacters: 1,
+          appendAutocomplete: $('#keyword_search_input'),
+          placeholder: gettext('Search for keyword ...')
+    });
+    $('#keyword_search_input').bind('selectChoice', function(e, choice, keyword_autocomplete) {
+          if(choice[0].children[0] == undefined) {
+              $('#keyword_search_input').val(choice[0].innerHTML);
+              $scope.text_query = choice[0].innerHTML;
+          }
+    });
+/* Old Jquery searching being replaced by angular
+    $('#keyword_search_btn').click(function(){
+      // Need to update this to add a keyword to the query and update the UI
+        if (HAYSTACK_SEARCH)
+            $scope.query['q'] = $('#keyword_search_input').val();
+        else
+            $scope.query['keywords__slug__in'] = $('#keyword_search_input').val();
+        query_api($scope.query);
+    });
+*/
+    /*
     * Region search management
     */
     var region_autocomplete = $('#region_search_input').yourlabsAutocomplete({
@@ -365,19 +509,37 @@
           hideAfter: 200,
           minimumCharacters: 1,
           appendAutocomplete: $('#region_search_input'),
-          placeholder: gettext('Enter your region here ...')
+          placeholder: gettext('Search for country or continent ...')
     });
+
     $('#region_search_input').bind('selectChoice', function(e, choice, region_autocomplete) {
           if(choice[0].children[0] == undefined) {
               $('#region_search_input').val(choice[0].innerHTML);
-              $('#region_search_btn').click();
+              $scope.text_query = choice[0].innerHTML;
           }
     });
 
+    $scope.add_search = function(filter, value, array) {
+      if (array.indexOf(value) == -1) {
+        array.push(value);
+        $scope.add_query(filter, value);
+      }
+    }
+
+    $scope.remove_search = function(filter, value, array) {
+      var index = array.indexOf(value);
+      if (index != -1) {
+        array.splice(index, 1);
+        $scope.remove_query(filter, value);
+      }
+    }
+
+    /* Old Jquery searching being replaced by angular
     $('#region_search_btn').click(function(){
         $scope.query['regions__name__in'] = $('#region_search_input').val();
         query_api($scope.query);
     });
+*/
 
     $scope.feature_select = function($event){
       var element = $($event.target);
