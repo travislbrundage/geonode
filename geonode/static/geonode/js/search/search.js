@@ -456,7 +456,7 @@
           hideAfter: 200,
           minimumCharacters: 1,
           appendAutocomplete: $('#text_search_input'),
-          placeholder: gettext('Search for MapStories or StoryLayers ...')
+          placeholder: gettext('Enter text here ...')
     });
     $('#text_search_input').bind('selectChoice', function(e, choice, text_autocomplete) {
           if(choice[0].children[0] == undefined) {
@@ -482,7 +482,7 @@
           hideAfter: 200,
           minimumCharacters: 1,
           appendAutocomplete: $('#keyword_search_input'),
-          placeholder: gettext('Search for keyword ...')
+          placeholder: gettext('Enter keyword here ...')
     });
     $('#keyword_search_input').bind('selectChoice', function(e, choice, keyword_autocomplete) {
           if(choice[0].children[0] == undefined) {
@@ -509,7 +509,7 @@
           hideAfter: 200,
           minimumCharacters: 1,
           appendAutocomplete: $('#region_search_input'),
-          placeholder: gettext('Search for country or continent ...')
+          placeholder: gettext('Enter region here ...')
     });
 
     $('#region_search_input').bind('selectChoice', function(e, choice, region_autocomplete) {
