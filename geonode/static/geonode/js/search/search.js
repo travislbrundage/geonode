@@ -447,6 +447,49 @@
       query_api($scope.query);
     }
 
+/*
+    $scope.change_api = function(api_endpoint) {
+      SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name={{api_endpoint}} %}';
+    }
+    */
+
+    $scope.change_api = function(api_endpoint) {
+      Configs.url = "/api/" + api_endpoint + "/";
+      console.log(Configs.url);
+      query_api($scope.query);
+    }
+
+    $scope.get_url = function() {
+      return Configs.url;
+    }
+    
+    // use the city field to determine this
+    $scope.calculate_most_popular_location = function() {
+      var highest = 1;
+      var popular = {};
+      var results = $scope.results;
+      // problem! this is using previous results for some reason...?
+      results.forEach(function(element) {
+        if (popular[element.city] != null) {
+          popular[element.city]++;
+          if (highest < popular[element.city]) {
+            highest = popular[element.city];
+            $scope.most_popular_location = element.city;
+          }
+        } else {
+          popular[element.city] = 1;
+        }
+      });
+      if (highest == 1) {
+        $scope.most_popular_location = results[0].city;
+      }
+    }
+
+    // Currently can't implement this because interest is not a field
+    $scope.calculate_most_popular_interest = function() {
+      $scope.most_popular_interest = "lol";
+    }
+
     /*
     * Text search management
     */

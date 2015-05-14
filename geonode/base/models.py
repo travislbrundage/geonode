@@ -185,6 +185,38 @@ class License(models.Model):
         ordering = ("name", )
         verbose_name_plural = 'Licenses'
 
+class ProfileBaseManager:
+
+class ProfileBase(AbstractUser, models.Model):
+    featured = models.BooleanField(default=False)
+    city = models.CharField(
+        _('City'),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_('city of the location'))
+    country = models.CharField(
+        choices=COUNTRIES,
+        max_length=3,
+        blank=True,
+        null=True,
+        help_text=_('country of the physical address'))
+    # This needs to map to city, country
+    location = models.TextField()
+    # This needs to be a list of many strings
+    interests = models.ManyToManyField()
+    # This field gets calculated in api.py - might need to edit there instead?
+    maps_count = models.IntegerField()
+    # This needs to be a string which gets overridden by the sublcasses
+    title = models.TextField()
+    position = models.CharField(
+        _('Position Name'),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_('role or position of the responsible person'))
+    # This is just the profile info... no idea if this will work correctly
+    info = models.TextField(_('Profile'), null=True, blank=True, help_text=_('introduce yourself'))
 
 class ResourceBaseManager(PolymorphicManager):
     def admin_contact(self):

@@ -277,10 +277,26 @@ class ProfileResource(ModelResource):
         queryset = get_user_model().objects.exclude(username='AnonymousUser')
         resource_name = 'profiles'
         allowed_methods = ['get']
-        ordering = ['username', 'date_joined']
+        ordering = ['username', 'date_joined', 'maps_count']
         excludes = ['is_staff', 'password', 'is_superuser',
                     'is_active', 'last_login']
 
         filtering = {
             'username': ALL,
         }
+
+#    def get_object_list(self, request):
+#        try:
+#            most_popular = request.GET['maps_count']
+#            obj_with_perms = get_objects_for_user(bundle.request.user,
+#                                              'base.view_resourcebase').instance_of(Map)
+#            result = super(ProfileResource, self).get_object_list(request).\
+#                annotate(maps_count=).order_by('maps_count')
+#        except:
+#            result = super(ProfileResource, self).get_object_list(request)
+#        return result
+
+#    def dehydrate_maps_count(self, bundle):
+#        obj_with_perms = get_objects_for_user(bundle.request.user,
+#                                              'base.view_resourcebase').instance_of(Map)
+#        return bundle.obj.resourcebase_set.filter(id__in=obj_with_perms.values('id')).distinct().count()
