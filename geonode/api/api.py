@@ -191,7 +191,7 @@ class ProfileResource(ModelResource):
     avatar_100 = fields.CharField(null=True)
     profile_detail_url = fields.CharField()
     email = fields.CharField(default='')
-    layers_count = fields.IntegerField(default=0)
+    layers_count = fields.IntegerField(default=0, attribute='layers_count')
     maps_count = fields.IntegerField(default=0)
     documents_count = fields.IntegerField(default=0)
     current_user = fields.BooleanField(default=False)
@@ -273,11 +273,29 @@ class ProfileResource(ModelResource):
         else:
             return []
 
+    def get_object_list(self, request):
+        result = super(ProfileResource, self).get_object_list(request)
+
+        # support custom ordering by how many layers viewable by current user
+        order_by = request.GET.getlist('order_by')
+        if any([att.endswith('layers_count') for att in order_by]):
+            # build a query of viewable layers
+            user = request.user
+            obj_with_perms = get_objects_for_user(user, 'base.view_resourcebase').instance_of(Layer)
+            # add custom where clause that will access a field joined later
+            obj_with_perms = obj_with_perms.extra(where=['"base_resourcebase"."owner_id"="people_profile"."id"'])
+            layer_count = obj_with_perms.values('id').distinct()
+            # make this subquery into an aggregate
+            count = 'SELECT COUNT(*) AS layers_count FROM (%s)' % layer_count.query
+            # and annotate with a new column for use in ordering
+            result = result.extra(select={'layers_count': count})
+        return result
+
     class Meta:
         queryset = get_user_model().objects.exclude(username='AnonymousUser')
         resource_name = 'profiles'
         allowed_methods = ['get']
-        ordering = ['username', 'date_joined']
+        ordering = ['username', 'date_joined', 'layers_count']
         excludes = ['is_staff', 'password', 'is_superuser',
                     'is_active', 'last_login']
 
