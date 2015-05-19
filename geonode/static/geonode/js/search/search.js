@@ -361,6 +361,17 @@
     }
 
     /*
+    * Delete all parts of this filter
+    */
+    $scope.delete_query = function(filter) {
+      // First check if this even exists to remove
+      if ($scope.query.hasOwnProperty(filter)) {
+        $scope.query[filter] = [];
+        query_api($scope.query);
+      }
+    }
+
+    /*
     * Add the selection behavior to the element, it adds/removes the 'active' class
     * and pushes/removes the value of the element from the query object
     */
@@ -446,12 +457,6 @@
       $scope.query[data_filter] = value;
       query_api($scope.query);
     }
-
-/*
-    $scope.change_api = function(api_endpoint) {
-      SEARCH_URL = '{% url 'api_dispatch_list' api_name='api' resource_name={{api_endpoint}} %}';
-    }
-    */
 
     $scope.change_api = function(api_endpoint) {
       Configs.url = "/api/" + api_endpoint + "/";
