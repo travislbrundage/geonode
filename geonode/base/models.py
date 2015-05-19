@@ -32,6 +32,10 @@ from taggit.managers import TaggableManager
 
 from geonode.people.enumerations import ROLE_VALUES
 
+# Travis added this
+from django.contrib.auth.models import AbstractUser
+from geonode.base.enumerations import COUNTRIES
+
 logger = logging.getLogger(__name__)
 
 
@@ -185,9 +189,9 @@ class License(models.Model):
         ordering = ("name", )
         verbose_name_plural = 'Licenses'
 
-class ProfileBaseManager:
+#class ProfileBaseManager:
 
-class ProfileBase(AbstractUser, models.Model):
+class ProfileBase(AbstractUser):
     featured = models.BooleanField(default=False)
     city = models.CharField(
         _('City'),
@@ -201,14 +205,26 @@ class ProfileBase(AbstractUser, models.Model):
         blank=True,
         null=True,
         help_text=_('country of the physical address'))
-    # This needs to map to city, country
-    location = models.TextField()
+    # This needs to map to city, country - or does it really?
+    #location = city + ',' + country
     # This needs to be a list of many strings
-    interests = models.ManyToManyField()
+    interests = fields.ToManyField(models.CharField(
+        _('Interests'),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_('tags you are interested in')
+        ), 'interests', null=True)
     # This field gets calculated in api.py - might need to edit there instead?
     maps_count = models.IntegerField()
     # This needs to be a string which gets overridden by the sublcasses
-    title = models.TextField()
+    title = models.CharField(
+        _('Title'),
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=_('title of the user or group')
+        )
     position = models.CharField(
         _('Position Name'),
         max_length=255,

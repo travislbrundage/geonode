@@ -301,6 +301,7 @@ class ProfileResource(ModelResource):
 
         filtering = {
             'username': ALL,
+            'city': ALL,
         }
 
 #    def get_object_list(self, request):

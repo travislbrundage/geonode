@@ -181,7 +181,7 @@
   * Load data from api and defines the multiple and single choice handlers
   * Syncs the browser url with the selections
   */
-  module.controller('geonode_search_controller', function($injector, $scope, $location, $http, Configs){
+  module.controller('geonode_search_controller', function($injector, $scope, $location, $http, $q, Configs){
     //$scope.view = 'content';
     $scope.query = $location.search();
     $scope.query.limit = $scope.query.limit || CLIENT_RESULTS_LIMIT;
@@ -191,8 +191,7 @@
 
     //Get data from apis and make them available to the page
     function query_api(data){
-      console.log("Data: " + data);
-      $http.get(Configs.url, {params: data || {}}).success(function(data){
+      return $http.get(Configs.url, {params: data || {}}).success(function(data){
         $scope.results = data.objects;
         $scope.total_counts = data.meta.total_count;
         $scope.$root.query_data = data;
@@ -252,7 +251,8 @@
         $scope.page -= 1;
         $scope.query.offset =  $scope.query.limit * ($scope.page - 1);
         query_api($scope.query);
-      }   
+      }
+      console.log($scope.numpages);   
     }
 
     $scope.paginate_up = function(){
@@ -456,13 +456,22 @@
     $scope.change_api = function(api_endpoint) {
       Configs.url = "/api/" + api_endpoint + "/";
       console.log(Configs.url);
-      query_api($scope.query);
+      $scope.query.limit = 100;
+      $scope.query.offset = 0;
+      return query_api($scope.query).then(function(result) {
+        return result;
+      });
     }
 
     $scope.get_url = function() {
       return Configs.url;
     }
     
+    $scope.calculate = function() {
+      $scope.calculate_most_popular_interest();
+      $scope.calculate_most_popular_location();
+    }
+
     // use the city field to determine this
     $scope.calculate_most_popular_location = function() {
       var highest = 1;
@@ -487,7 +496,7 @@
 
     // Currently can't implement this because interest is not a field
     $scope.calculate_most_popular_interest = function() {
-      $scope.most_popular_interest = "lol";
+      $scope.most_popular_interest = "MapStory";
     }
 
     /*

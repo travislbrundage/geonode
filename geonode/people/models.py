@@ -37,6 +37,8 @@ from .utils import format_address
 if 'notification' in settings.INSTALLED_APPS:
     from notification import models as notification
 
+# Travis added this
+from geonode.base.models import ProfileBase
 
 class Profile(AbstractUser):
 
