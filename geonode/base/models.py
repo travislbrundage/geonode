@@ -190,7 +190,7 @@ class License(models.Model):
         verbose_name_plural = 'Licenses'
 
 #class ProfileBaseManager:
-
+"""
 class ProfileBase(AbstractUser):
     featured = models.BooleanField(default=False)
     city = models.CharField(
@@ -233,7 +233,7 @@ class ProfileBase(AbstractUser):
         help_text=_('role or position of the responsible person'))
     # This is just the profile info... no idea if this will work correctly
     info = models.TextField(_('Profile'), null=True, blank=True, help_text=_('introduce yourself'))
-
+"""
 class ResourceBaseManager(PolymorphicManager):
     def admin_contact(self):
         # this assumes there is at least one superuser
