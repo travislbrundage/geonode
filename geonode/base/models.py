@@ -32,9 +32,9 @@ from taggit.managers import TaggableManager
 
 from geonode.people.enumerations import ROLE_VALUES
 
-# Travis added this
 from django.contrib.auth.models import AbstractUser
 from geonode.base.enumerations import COUNTRIES
+from tastypie import fields
 
 logger = logging.getLogger(__name__)
 
@@ -192,6 +192,10 @@ class License(models.Model):
 #class ProfileBaseManager:
 """
 class ProfileBase(AbstractUser):
+    AbstractUser.groups.related_name="base_groups"
+    AbstractUser.user_permissions.related_name="base_user_permissions"
+    #groups = Group.user_set(related_name="base_groups")
+    #user_permissions = Permission.user_set(related_name="base_user_permissions")
     featured = models.BooleanField(default=False)
     city = models.CharField(
         _('City'),
@@ -234,6 +238,7 @@ class ProfileBase(AbstractUser):
     # This is just the profile info... no idea if this will work correctly
     info = models.TextField(_('Profile'), null=True, blank=True, help_text=_('introduce yourself'))
 """
+
 class ResourceBaseManager(PolymorphicManager):
     def admin_contact(self):
         # this assumes there is at least one superuser
@@ -700,7 +705,6 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin):
             ('publish_resourcebase', 'Can publish resource'),
             ('change_resourcebase_metadata', 'Can change resource metadata'),
         )
-
 
 class LinkManager(models.Manager):
     """Helper class to access links grouped by type

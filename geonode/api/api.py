@@ -24,9 +24,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from tastypie.serializers import Serializer
 from tastypie import fields
 from tastypie.resources import ModelResource
-from tastypie.constants import ALL
+from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.utils import trailing_slash
-
 
 FILTER_TYPES = {
     'layer': Layer,
@@ -180,9 +179,11 @@ class GroupResource(ModelResource):
         resource_name = 'groups'
         allowed_methods = ['get']
         filtering = {
-            'name': ALL
+            'name': ALL,
+            'city': ALL,
+            'interests': ALL_WITH_RELATIONS,
         }
-        ordering = ['title', 'last_modified']
+        ordering = ['title', 'last_modified', 'date_joined']
 
 
 class ProfileResource(ModelResource):
@@ -295,13 +296,14 @@ class ProfileResource(ModelResource):
         queryset = get_user_model().objects.exclude(username='AnonymousUser')
         resource_name = 'profiles'
         allowed_methods = ['get']
-        ordering = ['username', 'date_joined', 'layers_count']
+        ordering = ['username', 'date_joined', 'layers_count', 'first_name']
         excludes = ['is_staff', 'password', 'is_superuser',
                     'is_active', 'last_login']
 
         filtering = {
             'username': ALL,
             'city': ALL,
+            'interests': ALL_WITH_RELATIONS,
         }
 
 #    def get_object_list(self, request):

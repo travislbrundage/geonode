@@ -294,6 +294,7 @@
     $scope.set_query = function(filter, value) {
       $scope.query = {};
       $scope.query[filter] = value;
+      console.log($scope.query);
       query_api($scope.query);
     }
 
@@ -460,7 +461,6 @@
 
     $scope.change_api = function(api_endpoint) {
       Configs.url = "/api/" + api_endpoint + "/";
-      console.log(Configs.url);
       $scope.query.limit = 100;
       $scope.query.offset = 0;
       return query_api($scope.query).then(function(result) {
@@ -477,12 +477,13 @@
       $scope.calculate_most_popular_location();
     }
 
+    // TODO: Refactor these into one function
     // use the city field to determine this
     $scope.calculate_most_popular_location = function() {
       var highest = 1;
       var popular = {};
       var results = $scope.results;
-      // problem! this is using previous results for some reason...?
+
       results.forEach(function(element) {
         if (popular[element.city] != null) {
           popular[element.city]++;
@@ -491,17 +492,39 @@
             $scope.most_popular_location = element.city;
           }
         } else {
-          popular[element.city] = 1;
+          if (element.city != "") {
+            popular[element.city] = 1;
+            if (highest == 1) {
+              $scope.most_popular_location = element.city;
+            }
+          }
         }
       });
-      if (highest == 1) {
-        $scope.most_popular_location = results[0].city;
-      }
     }
 
-    // Currently can't implement this because interest is not a field
+    // use the interest field to determine this
+    // This needs to be adjusted... interests are like keywords now
     $scope.calculate_most_popular_interest = function() {
-      $scope.most_popular_interest = "MapStory";
+      var highest = 1;
+      var popular = {};
+      var results = $scope.results;
+
+      results.forEach(function(element) {
+        if (popular[element.interest] != null) {
+          popular[element.interest]++;
+          if (highest < popular[element.interest]) {
+            highest = popular[element.interest];
+            $scope.most_popular_interest = element.interest;
+          }
+        } else {
+          if (element.interest != "") {
+            popular[element.interest] = 1;
+            if (highest == 1) {
+              $scope.most_popular_interest = element.interest;
+            }
+          }
+        }
+      });
     }
 
     /*
