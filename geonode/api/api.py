@@ -27,6 +27,9 @@ from tastypie.resources import ModelResource
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.utils import trailing_slash
 
+from geonode.people.models import Profile
+from django.db.models import Q
+
 FILTER_TYPES = {
     'layer': Layer,
     'map': Map,
@@ -185,7 +188,6 @@ class GroupResource(ModelResource):
         }
         ordering = ['title', 'last_modified', 'date_joined']
 
-
 class ProfileResource(ModelResource):
     """Profile api"""
 
@@ -197,6 +199,10 @@ class ProfileResource(ModelResource):
     documents_count = fields.IntegerField(default=0)
     current_user = fields.BooleanField(default=False)
     activity_stream_url = fields.CharField(null=True)
+    #keyword_list = fields.CharField(null=True, attribute='keywords')
+    #interest_list = fields.CharField(null=True, attribute='interests')
+    #keyword_list = fields.ToManyField(TagResource, 'keyword_list')
+    #interest_list = fields.ToManyField(TagResource, 'interest_list')
 
     def build_filters(self, filters={}):
         """adds filtering by group functionality"""
@@ -205,6 +211,14 @@ class ProfileResource(ModelResource):
 
         if 'group' in filters:
             orm_filters['group'] = filters['group']
+        if 'keyword_list' in filters:
+            query = filters['keyword_list']
+            qset = (Q(keywords__slug__exact=query))
+            orm_filters['keyword_list'] = qset
+        if 'interest_list' in filters:
+            query = filters['interest_list']
+            qset = (Q(interests__slug__exact=query))
+            orm_filters['interest_list'] = qset
 
         return orm_filters
 
@@ -212,6 +226,15 @@ class ProfileResource(ModelResource):
         """filter by group if applicable by group functionality"""
 
         group = applicable_filters.pop('group', None)
+
+        if 'keyword_list' in applicable_filters:
+            keyword_list = applicable_filters.pop('keyword_list')
+        else:
+            keyword_list = None
+        if 'interest_list' in applicable_filters:
+            interest_list = applicable_filters.pop('interest_list')
+        else:
+            interest_list = None
 
         semi_filtered = super(
             ProfileResource,
@@ -222,6 +245,10 @@ class ProfileResource(ModelResource):
         if group is not None:
             semi_filtered = semi_filtered.filter(
                 groupmember__group__slug=group)
+        if keyword_list is not None:
+            semi_filtered = semi_filtered.filter(keyword_list)
+        if interest_list is not None:
+            semi_filtered = semi_filtered.filter(interest_list)
 
         return semi_filtered
 
@@ -263,6 +290,12 @@ class ProfileResource(ModelResource):
                     bundle.obj).pk,
                 'object_id': bundle.obj.pk})
 
+    def dehydrate_keyword_list(self, bundle):
+        return bundle.obj.keyword_list()
+
+    def dehydrate_interest_list(self, bundle):
+        return bundle.obj.interest_list()
+
     def prepend_urls(self):
         if settings.HAYSTACK_SEARCH:
             return [
@@ -293,7 +326,8 @@ class ProfileResource(ModelResource):
         return result
 
     class Meta:
-        queryset = get_user_model().objects.exclude(username='AnonymousUser')
+        #queryset = get_user_model().objects.exclude(username='AnonymousUser')
+        queryset = Profile.objects.exclude(username='AnonymousUser')
         resource_name = 'profiles'
         allowed_methods = ['get']
         ordering = ['username', 'date_joined', 'layers_count', 'first_name']
@@ -303,21 +337,8 @@ class ProfileResource(ModelResource):
         filtering = {
             'username': ALL,
             'city': ALL,
-            'interests': ALL_WITH_RELATIONS,
+            'keyword_list': ALL,
+            'interest_list': ALL,
+            'keywords': ALL,
+            'interests': ALL,
         }
-
-#    def get_object_list(self, request):
-#        try:
-#            most_popular = request.GET['maps_count']
-#            obj_with_perms = get_objects_for_user(bundle.request.user,
-#                                              'base.view_resourcebase').instance_of(Map)
-#            result = super(ProfileResource, self).get_object_list(request).\
-#                annotate(maps_count=).order_by('maps_count')
-#        except:
-#            result = super(ProfileResource, self).get_object_list(request)
-#        return result
-
-#    def dehydrate_maps_count(self, bundle):
-#        obj_with_perms = get_objects_for_user(bundle.request.user,
-#                                              'base.view_resourcebase').instance_of(Map)
-#        return bundle.obj.resourcebase_set.filter(id__in=obj_with_perms.values('id')).distinct().count()
