@@ -189,56 +189,6 @@ class License(models.Model):
         ordering = ("name", )
         verbose_name_plural = 'Licenses'
 
-#class ProfileBaseManager:
-"""
-class ProfileBase(AbstractUser):
-    AbstractUser.groups.related_name="base_groups"
-    AbstractUser.user_permissions.related_name="base_user_permissions"
-    #groups = Group.user_set(related_name="base_groups")
-    #user_permissions = Permission.user_set(related_name="base_user_permissions")
-    featured = models.BooleanField(default=False)
-    city = models.CharField(
-        _('City'),
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text=_('city of the location'))
-    country = models.CharField(
-        choices=COUNTRIES,
-        max_length=3,
-        blank=True,
-        null=True,
-        help_text=_('country of the physical address'))
-    # This needs to map to city, country - or does it really?
-    #location = city + ',' + country
-    # This needs to be a list of many strings
-    interests = fields.ToManyField(models.CharField(
-        _('Interests'),
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text=_('tags you are interested in')
-        ), 'interests', null=True)
-    # This field gets calculated in api.py - might need to edit there instead?
-    maps_count = models.IntegerField()
-    # This needs to be a string which gets overridden by the sublcasses
-    title = models.CharField(
-        _('Title'),
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text=_('title of the user or group')
-        )
-    position = models.CharField(
-        _('Position Name'),
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text=_('role or position of the responsible person'))
-    # This is just the profile info... no idea if this will work correctly
-    info = models.TextField(_('Profile'), null=True, blank=True, help_text=_('introduce yourself'))
-"""
-
 class ResourceBaseManager(PolymorphicManager):
     def admin_contact(self):
         # this assumes there is at least one superuser

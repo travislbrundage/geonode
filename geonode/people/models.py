@@ -46,11 +46,7 @@ class TaggedInterests(TaggedItemBase):
 
 class Profile(AbstractUser):
     """Fully featured Geonode user"""
-    #interest = models.TextField(
-    #    _('Profile'),
-    #    null=True,
-    #    blank=True,
-    #    help_text=_('a list of your personal interests'))
+    featured = models.BooleanField(default=False, help_text=_('Should this resource be advertised in home page?'))
     interests = TaggableManager(_('interests'), blank=True, help_text=_(
         'a list of personal interests'), through=TaggedInterests, related_name='profile_interests')
     organization = models.CharField(

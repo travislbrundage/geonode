@@ -167,6 +167,7 @@ class GroupResource(ModelResource):
     detail_url = fields.CharField()
     member_count = fields.IntegerField()
     manager_count = fields.IntegerField()
+    interests = fields.CharField(null=True, attribute='interests')
 
     def dehydrate_member_count(self, bundle):
         return bundle.obj.member_queryset().count()
@@ -176,6 +177,9 @@ class GroupResource(ModelResource):
 
     def dehydrate_detail_url(self, bundle):
         return reverse('group_detail', args=[bundle.obj.slug])
+
+    def dehydrate_interests(self, bundle):
+        return bundle.obj.interest_list()
 
     class Meta:
         queryset = GroupProfile.objects.all()
@@ -187,7 +191,18 @@ class GroupResource(ModelResource):
             'interests': ALL_WITH_RELATIONS,
         }
         ordering = ['title', 'last_modified', 'date_joined']
-
+"""
+class FeaturedGroupResource(ModelResource):
+    class Meta:
+        queryset = GroupProfile.objects.all().filter(featured=True)
+        resource_name = 'featured'
+        allowed_methods = ['get']
+        filtering = {'name': ALL,
+                     'city': ALL,
+                     'interests': ALL_WITH_RELATIONS,
+                     }
+        ordering = ['title', 'last_modified', 'date_joined']
+"""
 class ProfileResource(ModelResource):
     """Profile api"""
 
@@ -199,10 +214,7 @@ class ProfileResource(ModelResource):
     documents_count = fields.IntegerField(default=0)
     current_user = fields.BooleanField(default=False)
     activity_stream_url = fields.CharField(null=True)
-    #keyword_list = fields.CharField(null=True, attribute='keywords')
-    #interest_list = fields.CharField(null=True, attribute='interests')
-    #keyword_list = fields.ToManyField(TagResource, 'keyword_list')
-    #interest_list = fields.ToManyField(TagResource, 'interest_list')
+    interests = fields.CharField(null=True, attribute='interests')
 
     def build_filters(self, filters={}):
         """adds filtering by group functionality"""
@@ -211,13 +223,9 @@ class ProfileResource(ModelResource):
 
         if 'group' in filters:
             orm_filters['group'] = filters['group']
-        if 'keyword_list' in filters:
-            query = filters['keyword_list']
-            qset = (Q(keywords__slug__exact=query))
-            orm_filters['keyword_list'] = qset
         if 'interest_list' in filters:
             query = filters['interest_list']
-            qset = (Q(interests__slug__exact=query))
+            qset = (Q(interests__slug__iexact=query))
             orm_filters['interest_list'] = qset
 
         return orm_filters
@@ -227,10 +235,6 @@ class ProfileResource(ModelResource):
 
         group = applicable_filters.pop('group', None)
 
-        if 'keyword_list' in applicable_filters:
-            keyword_list = applicable_filters.pop('keyword_list')
-        else:
-            keyword_list = None
         if 'interest_list' in applicable_filters:
             interest_list = applicable_filters.pop('interest_list')
         else:
@@ -245,8 +249,6 @@ class ProfileResource(ModelResource):
         if group is not None:
             semi_filtered = semi_filtered.filter(
                 groupmember__group__slug=group)
-        if keyword_list is not None:
-            semi_filtered = semi_filtered.filter(keyword_list)
         if interest_list is not None:
             semi_filtered = semi_filtered.filter(interest_list)
 
@@ -293,7 +295,7 @@ class ProfileResource(ModelResource):
     def dehydrate_keyword_list(self, bundle):
         return bundle.obj.keyword_list()
 
-    def dehydrate_interest_list(self, bundle):
+    def dehydrate_interests(self, bundle):
         return bundle.obj.interest_list()
 
     def prepend_urls(self):
@@ -327,7 +329,7 @@ class ProfileResource(ModelResource):
 
     class Meta:
         #queryset = get_user_model().objects.exclude(username='AnonymousUser')
-        queryset = Profile.objects.exclude(username='AnonymousUser')
+        queryset = Profile.objects.exclude(username='AnonymousUser').exclude(username='admin')
         resource_name = 'profiles'
         allowed_methods = ['get']
         ordering = ['username', 'date_joined', 'layers_count', 'first_name']
@@ -337,8 +339,4 @@ class ProfileResource(ModelResource):
         filtering = {
             'username': ALL,
             'city': ALL,
-            'keyword_list': ALL,
-            'interest_list': ALL,
-            'keywords': ALL,
-            'interests': ALL,
         }

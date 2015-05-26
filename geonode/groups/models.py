@@ -102,6 +102,12 @@ class GroupProfile(models.Model):
         Returns a list of the Group's keywords.
         """
         return [kw.name for kw in self.keywords.all()]
+        
+    def interest_list(self):
+        """
+        Returns a list of the Profile's interests.
+        """
+        return [interest.name for interest in self.interests.all()]
 
     def resources(self, resource_type=None):
         """
