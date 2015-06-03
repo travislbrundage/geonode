@@ -10,6 +10,9 @@ var app;
 Ext.onReady(function() {
 {% autoescape off %}
     GeoExt.Lang.set("{{ LANGUAGE_CODE }}");
+    //var test = {{ config }};
+    //console.log(test);
+
     var config = Ext.apply({
         authStatus: {% if user.is_authenticated %} 200{% else %} 401{% endif %},
         {% if PROXY_URL %}
@@ -37,7 +40,6 @@ Ext.onReady(function() {
            }
        }
     }, {{ config }});
-
 
     app = new GeoNode.Composer(config);
 {% endautoescape %}

@@ -1,3 +1,4 @@
+<script type="text/javascript">
 'use strict';
 (function() {
 
@@ -42,16 +43,15 @@
 
     function MapManager($http, $q, $log, $rootScope, $location,
         stMapConfigStore, StoryMap, stStoryMapBuilder, stStoryMapBaseBuilder) {
+        {% autoescape off %}
         this.storyMap = new StoryMap({target: 'map'});
         var self = this;
         this.loadMap = function(options) {
-            console.log(options);
             options = options || {};
             if (options.id) {
-                var config = stMapConfigStore.loadConfig(options.id);
-                stStoryMapBuilder.modifyStoryMap(self.storyMap, config);
+                //var config = stMapConfigStore.loadConfig(options.id);
+                stStoryMapBuilder.modifyStoryMap(self.storyMap, options);
             } else if (options.url) {
-                console.log("orly");
                 var mapLoad = $http.get(options.url).success(function(data) {
                     stStoryMapBuilder.modifyStoryMap(self.storyMap, data);
                 }).error(function(data, status) {
@@ -67,16 +67,18 @@
             // @todo how to make on top?
         };
         $rootScope.$on('$locationChangeSuccess', function() {
-            console.log({{ config }});
+            var config = {{ config }};
+            config.tools = [];
             var path = $location.path();
             if (path === '/new') {
                 self.loadMap();
             } else if (path.indexOf('/local') === 0) {
                 self.loadMap({id: /\d+/.exec(path)});
             } else {
-                self.loadMap({url: path});
+                self.loadMap(config);
             }
         });
+        {% endautoescape %}
     }
 
     module.service('MapManager', function($injector) {
@@ -114,3 +116,4 @@
 
     });
 })();
+</script>

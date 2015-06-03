@@ -5,13 +5,15 @@ exports.MapConfigTransformer = require('./MapConfigTransformer');
 exports.MapConfigTransformer = function(data) {
     var layers = [], i, ii, mode = 'instant';
     // look for playback mode in tools
-    for (i=0, ii=data.tools.length; i<ii; ++i) {
-        var tool = data.tools[i];
-        if (tool.ptype === "gxp_playback" && tool.outputConfig) {
-            if (tool.outputConfig.playbackMode === 'cumulative') {
-                mode = 'cumulative';
+    if (data.tools) {
+        for (i=0, ii=data.tools.length; i<ii; ++i) {
+            var tool = data.tools[i];
+            if (tool.ptype === "gxp_playback" && tool.outputConfig) {
+                if (tool.outputConfig.playbackMode === 'cumulative') {
+                    mode = 'cumulative';
+                }
+                // TODO other modes
             }
-            // TODO other modes
         }
     }
     for (i=0, ii=data.map.layers.length; i<ii; ++i) {
@@ -30,6 +32,11 @@ exports.MapConfigTransformer = function(data) {
                  layers.push(layerConfig);
              } else if (source.ptype === "gxp_mapboxsource") {
                  layerConfig.type = 'MapBox';
+                 layerConfig.name = layer.name;
+                 layerConfig.title = layer.title;
+                 layers.push(layerConfig);
+             } else if (source.ptype === "gxp_osmsource") {
+                 layerConfig.type = 'OSM';
                  layerConfig.name = layer.name;
                  layerConfig.title = layer.title;
                  layers.push(layerConfig);

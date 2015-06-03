@@ -2,6 +2,20 @@
 
 {% load i18n %}
 
+{% block title %} {% trans "Viewer" %} - {{ block.super }} {% endblock %}
+
+{% block head %}
+{{ block.super }}
+{% include 'maps/viewer.html' %}
+{% endblock %}
+{% block footer %}{% endblock %}
+
+
+{% comment %}
+{% extends "site_base.html" %}
+
+{% load i18n %}
+
 {% block title %} {% trans "GeoExplorer" %} - {{ block.super }} {% endblock %}
 
 {% block head %}
@@ -11,3 +25,4 @@
 {% endblock %}
 
 {% block footer %}{% endblock %}
+{% endcomment %}
