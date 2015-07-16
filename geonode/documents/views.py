@@ -1,4 +1,5 @@
 import json
+from guardian.shortcuts import get_perms
 
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -25,7 +26,7 @@ from geonode.utils import build_social_links
 ALLOWED_DOC_TYPES = settings.ALLOWED_DOCUMENT_TYPES
 
 _PERMISSION_MSG_DELETE = _("You are not permitted to delete this document")
-_PERMISSION_MSG_GENERIC = _('You do not have permissions for this document.')
+_PERMISSION_MSG_GENERIC = _("You do not have permissions for this document.")
 _PERMISSION_MSG_MODIFY = _("You are not permitted to modify this document")
 _PERMISSION_MSG_METADATA = _(
     "You are not permitted to modify this document's metadata")
@@ -90,6 +91,7 @@ def document_detail(request, docid):
             name__in=settings.DOWNLOAD_FORMATS_METADATA)
 
         context_dict = {
+            'perms_list': get_perms(request.user, document.get_self_resource()),
             'permissions_json': _perms_info_json(document),
             'resource': document,
             'metadata': metadata,
@@ -98,6 +100,15 @@ def document_detail(request, docid):
 
         if settings.SOCIAL_ORIGINS:
             context_dict["social_links"] = build_social_links(request, document)
+
+        if getattr(settings, 'EXIF_ENABLED', False):
+            try:
+                from geonode.contrib.exif.utils import exif_extract_dict
+                exif = exif_extract_dict(document)
+                if exif:
+                    context_dict['exif_data'] = exif
+            except:
+                print "Exif extraction failed."
 
         return render_to_response(
             "documents/document_detail.html",
@@ -142,8 +153,47 @@ class DocumentUploadView(CreateView):
         if settings.RESOURCE_PUBLISHING:
             is_published = False
         self.object.is_published = is_published
+
         self.object.save()
         self.object.set_permissions(form.cleaned_data['permissions'])
+
+        abstract = None
+        date = None
+        keywords = []
+        bbox = None
+
+        if getattr(settings, 'EXIF_ENABLED', False):
+            try:
+                from geonode.contrib.exif.utils import exif_extract_metadata_doc
+                exif_metadata = exif_extract_metadata_doc(self.object)
+                if exif_metadata:
+                    date = exif_metadata.get('date', None)
+                    keywords.extend(exif_metadata.get('keywords', []))
+                    bbox = exif_metadata.get('bbox', None)
+                    abstract = exif_metadata.get('abstract', None)
+            except:
+                print "Exif extraction failed."
+
+        if abstract:
+            self.object.abstract = abstract
+            self.object.save()
+
+        if date:
+            self.object.date = date
+            self.object.date_type = "Creation"
+            self.object.save()
+
+        if len(keywords) > 0:
+            self.object.keywords.add(*keywords)
+
+        if bbox:
+            bbox_x0, bbox_x1, bbox_y0, bbox_y1 = bbox
+            Document.objects.filter(id=self.object.pk).update(
+                bbox_x0=bbox_x0,
+                bbox_x1=bbox_x1,
+                bbox_y0=bbox_y0,
+                bbox_y1=bbox_y1)
+
         return HttpResponseRedirect(
             reverse(
                 'document_metadata',
@@ -158,6 +208,11 @@ class DocumentUpdateView(UpdateView):
     form_class = DocumentReplaceForm
     queryset = Document.objects.all()
     context_object_name = 'document'
+
+    def get_context_data(self, **kwargs):
+        context = super(DocumentUpdateView, self).get_context_data(**kwargs)
+        context['ALLOWED_DOC_TYPES'] = ALLOWED_DOC_TYPES
+        return context
 
     def form_valid(self, form):
         """

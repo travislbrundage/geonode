@@ -188,7 +188,7 @@ class GroupResource(ModelResource):
         ordering = ['title', 'last_modified', 'date_joined']
 
 
-class ProfileResource(ModelResource):
+class ProfileResource(TypeFilteredResource):
     """Profile api"""
 
     avatar_100 = fields.CharField(null=True)
@@ -310,6 +310,11 @@ class ProfileResource(ModelResource):
             result = result.extra(select={'layers_count': count})
         return result
 
+    def serialize(self, request, data, format, options={}):
+        options['count_type'] = 'owner'
+
+        return super(ProfileResource, self).serialize(request, data, format, options)
+        
     class Meta:
         queryset = get_user_model().objects.exclude(username='AnonymousUser')
         resource_name = 'profiles'
@@ -322,3 +327,4 @@ class ProfileResource(ModelResource):
             'username': ALL,
             'city': ALL,
         }
+        serializer = CountJSONSerializer()
