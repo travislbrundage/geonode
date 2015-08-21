@@ -57,6 +57,10 @@ from geonode.documents.models import get_related_documents
 from geonode.utils import build_social_links
 from geonode.geoserver.helpers import cascading_delete, gs_catalog
 
+from geonode.base.forms import KeywordsForm
+from geonode.base.forms import MetadataForm
+
+
 CONTEXT_LOG_FILE = None
 
 if 'geonode.geoserver' in settings.INSTALLED_APPS:
@@ -272,6 +276,32 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     metadata = layer.link_set.metadata().filter(
         name__in=settings.DOWNLOAD_FORMATS_METADATA)
 
+    if request.method == "POST":
+        keywords_form = KeywordsForm(request.POST, instance=layer)
+        metadata_form = MetadataForm(request.POST, instance=layer)
+
+        if keywords_form.is_valid():
+            new_keywords = keywords_form.cleaned_data['keywords']
+            layer.keywords.clear()
+            layer.keywords.add(*new_keywords)
+        if metadata_form.is_valid():
+            # update all the metadata
+            new_category = TopicCategory.objects.get(id=metadata_form.cleaned_data['category'])
+            Layer.objects.filter(id=the_layer.id).update(category=new_category)
+            new_language = metadata_form.cleaned_data['language']
+            new_distribution_url = metadata_form.cleaned_data['distribution_url']
+            new_data_quality_statement = metadata_form.cleaned_data['data_quality_statement']
+            new_purpose = metadata_form.cleaned_data['purpose']
+            layer.language = new_language
+            layer.distribution_url = new_distribution_url
+            layer.data_quality_statement = new_data_quality_statement
+            layer.purpose = new_purpose
+            layer.save()
+            
+    else:
+        keywords_form = KeywordsForm(instance=layer)
+        metadata_form = MetadataForm(instance=layer)
+
     context_dict = {
         "resource": layer,
         "permissions_json": _perms_info_json(layer),
@@ -279,6 +309,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         "metadata": metadata,
         "is_layer": True,
         "wps_enabled": settings.OGC_SERVER['default']['WPS_ENABLED'],
+        "keywords_form": keywords_form,
+        "metadata_form": metadata_form,
     }
 
     context_dict["viewer"] = json.dumps(
@@ -390,6 +422,7 @@ def layer_metadata(request, layername, template='layers/layer_metadata.html'):
             Layer.objects.filter(id=the_layer.id).update(
                 category=new_category
                 )
+
 
             return HttpResponseRedirect(
                 reverse(

@@ -151,3 +151,22 @@ class ResourceBaseForm(TranslationModelForm):
             'rating',
             'detail_url'
             )
+
+# A form for just keywords
+class KeywordsForm(forms.ModelForm):
+    class Meta:
+        model = ResourceBase
+        fields = ['keywords']
+
+# A form for just Metadata
+class MetadataForm(forms.ModelForm):
+
+    class Meta:
+        model = ResourceBase
+        fields = [
+            'category',
+            'language',
+            'distribution_url',
+            'data_quality_statement',
+            'purpose'
+        ]
