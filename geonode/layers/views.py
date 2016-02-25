@@ -556,6 +556,26 @@ def layer_remove(request, layername, template='layers/layer_remove.html'):
     else:
         return HttpResponse("Not allowed", status=403)
 
+@xframe_options_exempt
+def layer_embed(
+        request,
+        typename=None,
+        snapshot=None,
+        template='maps/map_embed.html'):
+    if typename is None:
+        config = default_map_config()[0] # What should we do for default for a layer?
+    else:
+        layer_obj = _resolve_layer(request, typename, 'base.view_resourcebase', _PERMISSION_MSG_VIEW)
+
+        if snapshot is None:
+            config = layer_obj.viewer_json(request.user) # Probably need to use something else or reimplement for layer
+        else:
+            config = snapshot_config(snapshot, layer_obj, request.user)
+
+    return render_to_response(template, RequestContext(request, {
+        'config': json.dumps(config)
+    }))
+
 
 def layer_thumbnail(request, layername):
     if request.method == 'POST':
