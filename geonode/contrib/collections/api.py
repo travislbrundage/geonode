@@ -9,12 +9,16 @@ from geonode.api.resourcebase_api import ResourceBaseResource
 
 from .models import Collection
 
+from mapstory.api import DiaryEntryResource
+
 
 class CollectionResource(ModelResource):
 
     users = fields.ToManyField(ProfileResource, attribute=lambda bundle: bundle.obj.group.group.user_set.all(), full=True)
     group = fields.ToOneField(GroupResource, 'group', full=True)
     resources = fields.ToManyField(ResourceBaseResource, 'resources', full=True)
+    # Not sure how to add this correctly
+    journals = fields.ToManyField(DiaryEntryResource, 'journals', full=True)
 
 
     class Meta:
