@@ -44,6 +44,8 @@ from geonode.security.models import remove_object_permissions
 
 from agon_ratings.models import OverallRating
 
+from geonode.base.models import Link
+
 logger = logging.getLogger("geonode.maps.models")
 
 
@@ -103,9 +105,19 @@ class MapStory(ResourceBase):
             return
 
         chapter_base = ResourceBase.objects.get(id=first_chapter_obj.id)
+        url = chapter_base.thumbnail_url
         ResourceBase.objects.filter(id=self.id).update(
-            thumbnail_url=chapter_base.thumbnail_url
+            thumbnail_url=url
         )
+
+        Link.objects.get_or_create(resource=self,
+                           url=url,
+                           defaults=dict(
+                               name='Thumbnail',
+                               extension='png',
+                               mime='image/png',
+                               link_type='image',
+                           ))
 
 
     class Meta(ResourceBase.Meta):
