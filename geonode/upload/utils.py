@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 
 
 def create_geoserver_db_featurestore(store_type=None, store_name=None):
+    import pdb
+    pdb.set_trace()
     cat = gs_catalog
     dsname = ogc_server_settings.DATASTORE
     # get or create datastore
@@ -45,6 +47,7 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
             return None
     except FailedRequestError:
         if store_type == 'geogig':
+            print "Geogig store"
             if store_name is None and hasattr(
                     settings,
                     'GEOGIG_DATASTORE_NAME'):
@@ -52,6 +55,9 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
             logger.info(
                 'Creating target datastore %s' %
                 store_name)
+            # if PG GEOGIG, use db settings in message
+            # else use parentDirectory
+            # if PG_GEOGIG_DB is not None
             if settings.PG_GEOGIG_STORE is True:
                 username = ogc_server_settings.credentials.username
                 password = ogc_server_settings.credentials.password
@@ -69,15 +75,18 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
                         None,
                         http
                     ))
-                rest_url = ogc_server_settings.LOCATION + "geoserver/" \
-                    + "geogig/repos/" + store_name + "/init"
+                rest_url = ogc_server_settings.LOCATION + "geogig/repos/" \
+                    + store_name + "/init"
+                pdb.set_trace()
+                database = settings.DATABASES['pg_geogig']
                 message = {
-                    "dbHost": settings.PG_GEOGIG_DB['HOST'],
+                    "dbHost": database['HOST'],
                     "dbPort": settings.PG_GEOGIG_DB['PORT'] or '5432',
                     "dbName": settings.PG_GEOGIG_DB['NAME'],
                     "dbSchema": settings.PG_GEOGIG_DB['SCHEMA'],
                     "dbUser": settings.PG_GEOGIG_DB['USER'],
                     "dbPassword": settings.PG_GEOGIG_DB['PASSWORD']
+                    # parentDirectory = ogc_server_settings.GEOGIG_DATASTORE_DIR
                 }
                 headers = {
                     "Content-type": "application/json",
@@ -92,6 +101,8 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
 
                 ds = cat.get_store(store_name)
             else:
+
+                print "Regular geogig"
                 ds = cat.create_datastore(store_name)
                 ds.type = "GeoGig"
                 ds.connection_parameters.update(

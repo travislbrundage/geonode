@@ -359,7 +359,7 @@ def extract_tarfile(upload_file, extension='.shp', tempdir=None):
 def file_upload(filename, name=None, user=None, title=None, abstract=None,
                 keywords=[], category=None, regions=[], date=None,
                 skip=True, overwrite=False, charset='UTF-8',
-                metadata_uploaded_preserve=False):
+                metadata_uploaded_preserve=False, geogig=False, gegoig_store=None):
     """Saves a layer in GeoNode asking as little information as possible.
        Only filename is required, user and title are optional.
     """
@@ -422,7 +422,9 @@ def file_upload(filename, name=None, user=None, title=None, abstract=None,
         'bbox_y0': bbox_y0,
         'bbox_y1': bbox_y1,
         'is_published': is_published,
-        'category': category
+        'category': category,
+        'geogig_enabled': geogig,
+        'geogig_store': geogig_store
     }
 
     # set metadata
@@ -476,6 +478,8 @@ def file_upload(filename, name=None, user=None, title=None, abstract=None,
         defaults['storeType'] = 'coverageStore'
 
     # Create a Django object.
+    # this is where it happens
+    #pdb.set_trace()
     layer, created = Layer.objects.get_or_create(
         name=valid_name,
         defaults=defaults

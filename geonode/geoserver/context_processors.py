@@ -25,6 +25,7 @@ from geonode.geoserver.helpers import ogc_server_settings
 
 def geoserver_urls(request):
     """Global values to pass to templates"""
+    # figure out how to correctly do things with data_upload too
     defaults = dict(
         GEOSERVER_BASE_URL=ogc_server_settings.public_url,
         UPLOADER_URL=reverse('data_upload') if getattr(

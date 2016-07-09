@@ -68,6 +68,9 @@ class LayerUploadForm(forms.Form):
     prj_file = forms.FileField(required=False)
     xml_file = forms.FileField(required=False)
 
+    geogig = forms.BooleanField(required=False)
+    geogig_store = forms.CharField(required=False)
+
     charset = forms.CharField(required=False)
     metadata_uploaded_preserve = forms.BooleanField(required=False)
 

@@ -260,6 +260,14 @@ class Layer(ResourceBase):
     def class_name(self):
         return self.__class__.__name__
 
+# Do we really need to bother doing this or do we just add the geogig field?
+# I think just add the field...
+class GeogigLayer(Layer):
+
+    """
+    GeogigLayer (inherits Layer fields)
+    """
+    geogig = models.BooleanField(default=False)
 
 class LayerStyles(models.Model):
     layer = models.ForeignKey(Layer)
@@ -428,6 +436,8 @@ class Attribute(models.Model):
 
 
 def pre_save_layer(instance, sender, **kwargs):
+    import pdb
+    pdb.set_trace()
     if kwargs.get('raw', False):
         instance.owner = instance.resourcebase_ptr.owner
         instance.uuid = instance.resourcebase_ptr.uuid

@@ -471,6 +471,8 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin):
         """
         Calculate zoom level and center coordinates in mercator.
         """
+        #import pdb
+        #pdb.set_trace()
         self.set_latlon_bounds(bbox)
 
         minx, miny, maxx, maxy = [float(c) for c in bbox]

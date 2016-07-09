@@ -968,6 +968,8 @@ def _create_db_featurestore(name, data, overwrite=False, charset="UTF-8", worksp
     If the import into the database fails then delete the store
     (and delete the PostGIS table for it).
     """
+    import pdb
+    pdb.set_trace()
     cat = gs_catalog
     dsname = ogc_server_settings.DATASTORE
 
@@ -1000,6 +1002,7 @@ def _create_db_featurestore(name, data, overwrite=False, charset="UTF-8", worksp
     cat.save(ds)
     ds = get_store(cat, dsname, workspace=workspace)
 
+    # Do we want to still do this within pg_geogig?
     try:
         cat.add_data_to_store(ds, name, data,
                               overwrite=overwrite,
@@ -1057,7 +1060,8 @@ def geoserver_upload(
         permissions=None,
         keywords=(),
         charset='UTF-8'):
-
+    import pdb
+    pdb.set_trace()
     # Step 2. Check that it is uploading to the same resource type as
     # the existing resource
     logger.info('>>> Step 2. Make sure we are not trying to overwrite a '
@@ -1103,6 +1107,17 @@ def geoserver_upload(
     logger.info('>>> Step 3. Identifying if [%s] is vector or raster and '
                 'gathering extra files', name)
     if the_layer_type == FeatureType.resource_type:
+        # In this situation, check if its geogig upload, and do that if necessary
+        # How do we get the geogig set from form?
+        if geogig is True:
+            if PG_GEOGIG_STORE is True:
+                print "Okay"
+        #if False:
+            # Now check for PG_GEOGIG
+        #    if PG_GEOGIG_STORE is True:
+                # do PG GEOGIG
+        #    else:
+                # do file based GEOGIG
         logger.debug('Uploading vector layer: [%s]', base_file)
         if ogc_server_settings.DATASTORE:
             create_store_and_resource = _create_db_featurestore

@@ -139,6 +139,8 @@ def layer_upload(request, template='upload/layer_upload.html'):
         }
         return render_to_response(template, RequestContext(request, ctx))
     elif request.method == 'POST':
+        import pdb
+        pdb.set_trace()
         form = NewLayerUploadForm(request.POST, request.FILES)
         tempdir = None
         errormsgs = []
@@ -159,6 +161,7 @@ def layer_upload(request, template='upload/layer_upload.html'):
                 # exceptions when unicode characters are present.
                 # This should be followed up in upstream Django.
                 tempdir, base_file = form.write_files()
+                # This is maybe where it goes into geoserver?
                 saved_layer = file_upload(
                     base_file,
                     name=name,
@@ -167,7 +170,9 @@ def layer_upload(request, template='upload/layer_upload.html'):
                     charset=form.cleaned_data["charset"],
                     abstract=form.cleaned_data["abstract"],
                     title=form.cleaned_data["layer_title"],
-                    metadata_uploaded_preserve=form.cleaned_data["metadata_uploaded_preserve"]
+                    metadata_uploaded_preserve=form.cleaned_data["metadata_uploaded_preserve"],
+                    geogig_enabled=form.cleaned_data['geogig'],
+                    geogig_store=form.cleaned_data['geogig_store']
                 )
             except Exception as e:
                 exception_type, error, tb = sys.exc_info()
@@ -499,6 +504,7 @@ def layer_change_poc(request, ids, template='layers/layer_change_poc.html'):
 
 @login_required
 def layer_replace(request, layername, template='layers/layer_replace.html'):
+    # When is this called? May need to modify this as well
     layer = _resolve_layer(
         request,
         layername,

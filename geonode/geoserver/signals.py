@@ -81,6 +81,8 @@ def geoserver_pre_save(instance, sender, **kwargs):
         # There is no need to process it if there is not file.
         if base_file is None:
             return
+        import pdb
+        pdb.set_trace()
         gs_name, workspace, values, gs_resource = geoserver_upload(instance,
                                                                    base_file.file.path,
                                                                    instance.owner,
