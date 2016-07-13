@@ -60,6 +60,9 @@ import urllib
 import urllib2
 from zipfile import ZipFile
 import re
+import httplib2
+from urlparse import urlparse
+from simplejson import dumps
 
 GEONODE_USER = 'test_uploader'
 GEONODE_PASSWD = 'test_uploader'

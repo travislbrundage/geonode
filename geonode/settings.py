@@ -62,8 +62,20 @@ DATABASES = {
     #    'PASSWORD' : '',
     #    'HOST' : '',
     #    'PORT' : '',
-    # }
+    # },
+    # postgres backed geogig datastore for uploads
+    # 'pg-geogig': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    #     'NAME': 'geogig',
+    #     'SCHEMA': 'public',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'postgres',
+    # },
 }
+PG_GEOGIG_DB = None
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
