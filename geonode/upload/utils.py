@@ -81,6 +81,8 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
                 message = {
                     "parentDirectory": ogc_server_settings.GEOGIG_DATASTORE_DIR
                 }
+            import pdb
+            pdb.set_trace()
             response = http.request(rest_url, 'PUT', dumps(message), headers)
             headers, body = response
             if 400 <= int(headers['status']) < 600:

@@ -64,17 +64,17 @@ DATABASES = {
     #    'PORT' : '',
     # },
     # postgres backed geogig datastore for uploads
-    # 'pg-geogig': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'HOST': 'localhost',
-    #     'PORT': '5432',
-    #     'NAME': 'geogig',
-    #     'SCHEMA': 'public',
-    #     'USER': 'postgres',
-    #     'PASSWORD': 'postgres',
-    # },
+    'pg-geogig': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'NAME': 'repos',
+        'SCHEMA': 'public',
+        'USER': 'geogig',
+        'PASSWORD': 'geogig',
+    },
 }
-PG_GEOGIG_DB = None
+PG_GEOGIG_DB = DATABASES['pg-geogig']
 
 
 # Local time zone for this installation. Choices can be found here:

@@ -1,0 +1,25 @@
+---> pavement.test_integration
+rm -rf geonode/development.db
+rm -rf geonode/uploaded/*
+rmtree geoserver/data
+---> pavement.start_geoserver
+cd /vagrant/.venv/src/geonode/geoserver/data
+java -version
+java -Xmx512m -XX:MaxPermSize=256m -DGEOSERVER_DATA_DIR=/vagrant/.venv/src/geonode/geoserver/data -Dorg.eclipse.jetty.server.webapp.parentLoaderPriority=true -jar /vagrant/.venv/src/geonode/downloaded/jetty-runner-8.1.8.v20121106.jar --port 8080 --log /vagrant/.venv/src/geonode/geoserver/jetty.log /vagrant/.venv/src/geonode/scripts/misc/jetty-runner.xml > /dev/null &
+cd /vagrant/.venv/src/geonode
+Starting GeoServer on http://localhost:8080/geoserver/
+The logs are available at /vagrant/.venv/src/geonode/geoserver/jetty.log
+GeoNode is now available, running the tests now.
+python manage.py test geonode.tests.integration --noinput --liveserver=localhost:8000
+nosetests geonode.tests.integration --nocapture --detailed-errors --verbosity=1
+Creating test database for alias 'default'...
+Destroying test database for alias 'default'...
+Tests failed! Subprocess return code: 1
+---> pavement.stop
+---> pavement.stop_geoserver
+Stopping java (process number 2805)
+Stopping GeoNode ...
+---> pavement.stop_django
+rm -rf geonode/development.db
+rm -rf geonode/uploaded/*
+rmtree geoserver/data
