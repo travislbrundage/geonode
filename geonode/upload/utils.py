@@ -23,6 +23,9 @@ import os
 from django.conf import settings
 from geoserver.catalog import FailedRequestError
 from geonode.geoserver.helpers import ogc_server_settings, gs_catalog
+import httplib2
+from urlparse import urlparse
+from simplejson import dumps
 
 logger = logging.getLogger(__name__)
 
@@ -43,22 +46,48 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
             return None
     except FailedRequestError:
         if store_type == 'geogig':
-            if store_name is None and hasattr(
-                    settings,
-                    'GEOGIG_DATASTORE_NAME'):
-                store_name = settings.GEOGIG_DATASTORE_NAME
-            logger.info(
-                'Creating target datastore %s' %
-                settings.GEOGIG_DATASTORE_NAME)
-            ds = cat.create_datastore(store_name)
-            ds.type = "GeoGig"
-            ds.connection_parameters.update(
-                geogig_repository=os.path.join(
-                    ogc_server_settings.GEOGIG_DATASTORE_DIR,
-                    store_name),
-                branch="master",
-                create="true")
-            cat.save(ds)
+            username = ogc_server_settings.credentials.username
+            password = ogc_server_settings.credentials.password
+            url = ogc_server_settings.rest
+            http = httplib2.Http(disable_ssl_certificate_validation=False)
+            http.add_credentials(username, password)
+            netloc = urlparse(url).netloc
+            http.authorizations.append(
+                httplib2.BasicAuthentication(
+                    (username, password),
+                    netloc,
+                    url,
+                    {},
+                    None,
+                    None,
+                    http
+                ))
+            rest_url = ogc_server_settings.LOCATION \
+                + "geogig/repos/" + store_name + "/init.json"
+            headers = {
+                "Content-type": "application/json",
+                "Accept": "application/json"
+            }
+            if settings.PG_GEOGIG_DB is not None:
+                message = {
+                    "dbHost": settings.PG_GEOGIG_DB['HOST'],
+                    "dbPort": settings.PG_GEOGIG_DB['PORT'] or '5432',
+                    "dbName": settings.PG_GEOGIG_DB['NAME'],
+                    "dbSchema": settings.PG_GEOGIG_DB['SCHEMA'],
+                    "dbUser": settings.PG_GEOGIG_DB['USER'],
+                    "dbPassword": settings.PG_GEOGIG_DB['PASSWORD']
+                }
+            else:
+                message = {
+                    "parentDirectory": ogc_server_settings.GEOGIG_DATASTORE_DIR
+                }
+            response = http.request(rest_url, 'PUT', dumps(message), headers)
+            headers, body = response
+            if 400 <= int(headers['status']) < 600:
+                raise FailedRequestError(
+                    "Error code (%s) from GeoServer: %s" %
+                    (headers['status'], body))
+
             ds = cat.get_store(store_name)
         else:
             logging.info(

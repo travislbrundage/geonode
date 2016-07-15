@@ -54,6 +54,9 @@ from geonode.geoserver.helpers import cascading_delete, set_attributes
 # from geonode.geoserver.helpers import get_wms
 # from geonode.geoserver.helpers import set_time_info
 from geonode.geoserver.signals import gs_catalog
+import httplib2
+from urlparse import urlparse
+from simplejson import dumps
 
 
 LOGIN_URL = "/accounts/login/"
@@ -649,6 +652,62 @@ class GeoNodeMapTest(TestCase):
              'prj_file': layer_prj
              })
         self.assertEquals(response.status_code, 401)
+
+    def test_geogig(self):
+        '''make sure a geogig datastore can be created'''
+        cat = gs_catalog
+
+        url = ogc_server_settings.rest
+        http = httplib2.Http(disable_ssl_certificate_validation=False)
+        http.add_credentials(GEOSERVER_USER, GEOSERVER_PASSWD)
+        netloc = urlparse(url).netloc
+        http.authorizations.append(
+            httplib2.BasicAuthentication(
+                (GEOSERVER_USER, GEOSERVER_PASSWD),
+                netloc,
+                url,
+                {},
+                None,
+                None,
+                http
+            ))
+
+        headers = {
+            "Content-type": "application/json",
+            "Accept": "application/json"
+        }
+
+        if settings.PG_GEOGIG_DB is not None:
+            message = {
+                "dbHost": settings.PG_GEOGIG_DB['HOST'],
+                "dbPort": settings.PG_GEOGIG_DB['PORT'] or '5432',
+                "dbName": settings.PG_GEOGIG_DB['NAME'],
+                "dbSchema": settings.PG_GEOGIG_DB['SCHEMA'],
+                "dbUser": settings.PG_GEOGIG_DB['USER'],
+                "dbPassword": settings.PG_GEOGIG_DB['PASSWORD']
+            }
+            rest_url = ogc_server_settings.LOCATION \
+                + "geogig/repos/pg-geogig/init.json"
+            response = http.request(rest_url, 'PUT', dumps(message), headers)
+            response_headers, response_body = response
+            # Test the server responds correctly
+            self.assertFalse(400 <= response_headers['status'] < 600)
+            # Test the datastore was created correctly
+            pg_ds = cat.get_store('pg-geogig')
+            self.assertIsNotNone(pg_ds)
+
+        message = {
+            "parentDirectory": ogc_server_settings.GEOGIG_DATASTORE_DIR
+        }
+        rest_url = ogc_server_settings.LOCATION \
+            + "geogig/repos/geogig/init.json"
+        response = http.request(rest_url, 'PUT', dumps(message), headers)
+        response_headers, response_body = response
+        # Test the server responds correctly
+        self.assertFalse(400 <= response_headers['status'] < 600)
+        # Test the datastore was created correctly
+        ds = cat.get_store('geogig')
+        self.assertIsNotNone(ds)
 
 
 class GeoNodePermissionsTest(TestCase):
