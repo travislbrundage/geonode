@@ -399,8 +399,6 @@ def run_import(upload_session, async):
 
     if ogc_server_settings.GEOGIG_ENABLED and upload_session.geogig is True \
             and task.target.store_type != 'coverageStore':
-        # We need to add the name and email address here
-        # Where in import session is it?
         target = create_geoserver_db_featurestore(
             store_type='geogig',
             store_name=upload_session.geogig_store,

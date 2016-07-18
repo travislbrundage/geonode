@@ -60,6 +60,7 @@ import urllib
 import urllib2
 from zipfile import ZipFile
 import re
+from geonode.upload.utils import create_geoserver_db_featurestore
 
 GEONODE_USER = 'test_uploader'
 GEONODE_PASSWD = 'test_uploader'
@@ -581,6 +582,45 @@ class TestUpload(UploaderBase):
         self.assertTrue('success' in data)
         self.assertTrue(data['success'])
         self.assertTrue(data['redirect_to'], "/upload/csv")
+
+    def test_geogig(self):
+        '''Test formation of REST call to geoserver's geogig API'''
+        import pdb
+        pdb.set_trace()
+        fb_geogig = create_geoserver_db_featurestore('geogig', 'filebased')
+        # make sure a datastore was created
+        self.assertIsNotNone(fb_geogig)
+        # make sure the REST call looks right
+        fb_message = {
+            "authorName": "admin",
+            "authorEmail": "exchange@boundlessgeo.com",
+            "parentDirectory": ""
+        }
+        # don't know if this will actually work
+        self.assertEquals(create_geoserver_db_featurestore.message, fb_message)
+        # Manually override the settings to hack the function
+        settings.PG_GEOGIG_DB = {
+            "HOST": "localhost",
+            "PORT": "5432",
+            "NAME": "repos",
+            "SCHEMA": "public",
+            "USER": "geogig",
+            "PASSWORD": "geogig"
+        }
+        # This is going to fail to create the datastore because there isn't
+        # actually a postgres database set up
+        create_geoserver_db_featurestore('geogig', 'postgres')
+        pg_message = {
+            "authorName": "admin",
+            "authorEmail": "exchange@boundlessgeo.com",
+            "dbHost": settings.PG_GEOGIG_DB['HOST'],
+            "dbPort": settings.PG_GEOGIG_DB['PORT'] or '5432',
+            "dbName": settings.PG_GEOGIG_DB['NAME'],
+            "dbSchema": settings.PG_GEOGIG_DB['SCHEMA'],
+            "dbUser": settings.PG_GEOGIG_DB['USER'],
+            "dbPassword": settings.PG_GEOGIG_DB['PASSWORD']
+        }
+        self.assertEquals(create_geoserver_db_featurestore.message, pg_message)
 
 
 @unittest.skipUnless(ogc_server_settings.datastore_db, 'Vector datastore not enabled')

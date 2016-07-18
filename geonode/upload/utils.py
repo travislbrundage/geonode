@@ -91,16 +91,13 @@ def create_geoserver_db_featurestore(
                     "Error code (%s) from GeoServer: %s" %
                     (headers['status'], body))
 
-            # We want to wait until the ds is created, but how? Will this work?
-            import pdb
-            pdb.set_trace()
-            if not ds:
-                ds = None
+            # TODO: Better way to do this?
+            ds = None
             while ds is None:
                 try:
                     ds = cat.get_store(store_name)
                 except FailedRequestError:
-                    print "We failed!"
+                    ds = None
         else:
             logging.info(
                 'Creating target datastore %s' % dsname)
