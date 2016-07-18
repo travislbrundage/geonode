@@ -30,7 +30,9 @@ from simplejson import dumps
 logger = logging.getLogger(__name__)
 
 
-def create_geoserver_db_featurestore(store_type=None, store_name=None):
+def create_geoserver_db_featurestore(
+        store_type=None, store_name=None,
+        author_name='admin', author_email='exchange@boundlessgeo.com'):
     cat = gs_catalog
     dsname = ogc_server_settings.DATASTORE
     # get or create datastore
@@ -68,19 +70,20 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
                 "Content-type": "application/json",
                 "Accept": "application/json"
             }
+            message = {
+                "authorName": author_name,
+                "authorEmail": author_email
+            }
             if settings.PG_GEOGIG_DB is not None:
-                message = {
-                    "dbHost": settings.PG_GEOGIG_DB['HOST'],
-                    "dbPort": settings.PG_GEOGIG_DB['PORT'] or '5432',
-                    "dbName": settings.PG_GEOGIG_DB['NAME'],
-                    "dbSchema": settings.PG_GEOGIG_DB['SCHEMA'],
-                    "dbUser": settings.PG_GEOGIG_DB['USER'],
-                    "dbPassword": settings.PG_GEOGIG_DB['PASSWORD']
-                }
+                message["dbHost"] = settings.PG_GEOGIG_DB['HOST']
+                message["dbPort"] = settings.PG_GEOGIG_DB['PORT'] or '5432'
+                message["dbName"] = settings.PG_GEOGIG_DB['NAME']
+                message["dbSchema"] = settings.PG_GEOGIG_DB['SCHEMA']
+                message["dbUser"] = settings.PG_GEOGIG_DB['USER']
+                message["dbPassword"] = settings.PG_GEOGIG_DB['PASSWORD']
             else:
-                message = {
-                    "parentDirectory": ogc_server_settings.GEOGIG_DATASTORE_DIR
-                }
+                message["parentDirectory"] = \
+                    ogc_server_settings.GEOGIG_DATASTORE_DIR
             response = http.request(rest_url, 'PUT', dumps(message), headers)
             headers, body = response
             if 400 <= int(headers['status']) < 600:
@@ -88,7 +91,16 @@ def create_geoserver_db_featurestore(store_type=None, store_name=None):
                     "Error code (%s) from GeoServer: %s" %
                     (headers['status'], body))
 
-            ds = cat.get_store(store_name)
+            # We want to wait until the ds is created, but how? Will this work?
+            import pdb
+            pdb.set_trace()
+            if not ds:
+                ds = None
+            while ds is None:
+                try:
+                    ds = cat.get_store(store_name)
+                except FailedRequestError:
+                    print "We failed!"
         else:
             logging.info(
                 'Creating target datastore %s' % dsname)
