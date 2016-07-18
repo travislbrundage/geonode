@@ -26,8 +26,40 @@ from geonode.geoserver.helpers import ogc_server_settings, gs_catalog
 import httplib2
 from urlparse import urlparse
 from simplejson import dumps
+from geoserver.store import UnsavedDataStore
 
 logger = logging.getLogger(__name__)
+
+
+class UnsavedGeogigDataStore(UnsavedDataStore):
+    save_method = "PUT"
+
+    def __init__(self, catalog, name, workspace, author_name, author_email):
+        self.author_name = author_name
+        self.author_email = author_email
+        super(UnsavedGeogigDataStore, self).__init__(catalog, name, workspace)
+
+    def message(self):
+        message = {
+            "authorName": self.author_name,
+            "authorEmail": self.author_email
+        }
+        if settings.PG_GEOGIG_DB is not None:
+            message["dbHost"] = settings.PG_GEOGIG_DB['HOST']
+            message["dbPort"] = settings.PG_GEOGIG_DB['PORT'] or '5432'
+            message["dbName"] = settings.PG_GEOGIG_DB['NAME']
+            message["dbSchema"] = settings.PG_GEOGIG_DB['SCHEMA']
+            message["dbUser"] = settings.PG_GEOGIG_DB['USER']
+            message["dbPassword"] = settings.PG_GEOGIG_DB['PASSWORD']
+        else:
+            message["parentDirectory"] = \
+                ogc_server_settings.GEOGIG_DATASTORE_DIR
+        return dumps(message)
+
+    @property
+    def href(self):
+        return ogc_server_settings.LOCATION \
+            + "geogig/repos/" + self.name + "/init.json"
 
 
 def create_geoserver_db_featurestore(
@@ -48,56 +80,10 @@ def create_geoserver_db_featurestore(
             return None
     except FailedRequestError:
         if store_type == 'geogig':
-            username = ogc_server_settings.credentials.username
-            password = ogc_server_settings.credentials.password
-            url = ogc_server_settings.rest
-            http = httplib2.Http(disable_ssl_certificate_validation=False)
-            http.add_credentials(username, password)
-            netloc = urlparse(url).netloc
-            http.authorizations.append(
-                httplib2.BasicAuthentication(
-                    (username, password),
-                    netloc,
-                    url,
-                    {},
-                    None,
-                    None,
-                    http
-                ))
-            rest_url = ogc_server_settings.LOCATION \
-                + "geogig/repos/" + store_name + "/init.json"
-            headers = {
-                "Content-type": "application/json",
-                "Accept": "application/json"
-            }
-            message = {
-                "authorName": author_name,
-                "authorEmail": author_email
-            }
-            if settings.PG_GEOGIG_DB is not None:
-                message["dbHost"] = settings.PG_GEOGIG_DB['HOST']
-                message["dbPort"] = settings.PG_GEOGIG_DB['PORT'] or '5432'
-                message["dbName"] = settings.PG_GEOGIG_DB['NAME']
-                message["dbSchema"] = settings.PG_GEOGIG_DB['SCHEMA']
-                message["dbUser"] = settings.PG_GEOGIG_DB['USER']
-                message["dbPassword"] = settings.PG_GEOGIG_DB['PASSWORD']
-            else:
-                message["parentDirectory"] = \
-                    ogc_server_settings.GEOGIG_DATASTORE_DIR
-            response = http.request(rest_url, 'PUT', dumps(message), headers)
-            headers, body = response
-            if 400 <= int(headers['status']) < 600:
-                raise FailedRequestError(
-                    "Error code (%s) from GeoServer: %s" %
-                    (headers['status'], body))
-
-            # TODO: Better way to do this?
-            ds = None
-            while ds is None:
-                try:
-                    ds = cat.get_store(store_name)
-                except FailedRequestError:
-                    ds = None
+            ds = UnsavedGeogigDataStore(
+                cat, store_name, cat.get_default_workspace())
+            cat.save(ds)
+            ds = cat.get_store(store_name)
         else:
             logging.info(
                 'Creating target datastore %s' % dsname)
