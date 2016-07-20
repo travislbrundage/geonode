@@ -82,7 +82,7 @@ def create_geoserver_db_featurestore(
             ds = UnsavedGeogigDataStore(
                 cat, store_name, cat.get_default_workspace(),
                 author_name, author_email)
-            cat.save(ds)
+            cat.save(ds, "application/json")
             ds = cat.get_store(store_name)
         else:
             logging.info(
