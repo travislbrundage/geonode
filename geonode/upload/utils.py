@@ -22,8 +22,8 @@ import logging
 from django.conf import settings
 from geoserver.catalog import FailedRequestError
 from geonode.geoserver.helpers import ogc_server_settings, gs_catalog
-from simplejson import dumps
 from geoserver.store import UnsavedDataStore
+from xml.etree import ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
@@ -37,23 +37,30 @@ class UnsavedGeogigDataStore(UnsavedDataStore):
         super(UnsavedGeogigDataStore, self).__init__(catalog, name, workspace)
 
     def message(self):
-        message = {
-            "authorName": self.author_name,
-            "authorEmail": self.author_email
-        }
+        message = ET.Element('request')
+        authorName = ET.SubElement(message, 'authorName')
+        authorName.text = self.author_name
+        authorEmail = ET.SubElement(message, 'authorEmail')
+        authorEmail.text = self.author_email
         if settings.OGC_SERVER['default']['PG_GEOGIG'] is True:
             datastore = settings.OGC_SERVER['default']['DATASTORE']
             pg_geogig_db = settings.DATABASES[datastore]
-            message["dbHost"] = pg_geogig_db['HOST']
-            message["dbPort"] = pg_geogig_db['PORT'] or '5432'
-            message["dbName"] = pg_geogig_db['NAME']
-            message["dbSchema"] = pg_geogig_db['SCHEMA']
-            message["dbUser"] = pg_geogig_db['USER']
-            message["dbPassword"] = pg_geogig_db['PASSWORD']
+            dbHost = ET.SubElement(message, 'dbHost')
+            dbHost.text = pg_geogig_db['HOST']
+            dbPort = ET.SubElement(message, 'dbPort')
+            dbPort.text = str(pg_geogig_db.get('PORT', '5432'))
+            dbName = ET.SubElement(message, 'dbName')
+            dbName.text = pg_geogig_db['NAME']
+            dbSchema = ET.SubElement(message, 'dbSchema')
+            dbSchema.text = pg_geogig_db.get('SCHEMA', 'public')
+            dbUser = ET.SubElement(message, 'dbUser')
+            dbUser.text = pg_geogig_db['USER']
+            dbPassword = ET.SubElement(message, 'dbPassword')
+            dbPassword.text = pg_geogig_db['PASSWORD']
         else:
-            message["parentDirectory"] = \
-                ogc_server_settings.GEOGIG_DATASTORE_DIR
-        return dumps(message)
+            parentDirectory = ET.SubElement(message, 'parentDirectory')
+            parentDirectory.text = ogc_server_settings.GEOGIG_DATASTORE_DIR
+        return ET.tostring(message)
 
     @property
     def href(self):

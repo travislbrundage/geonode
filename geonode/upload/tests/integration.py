@@ -61,6 +61,7 @@ import urllib2
 from zipfile import ZipFile
 import re
 from geonode.upload.utils import UnsavedGeogigDataStore
+from xml.etree import ElementTree as ET
 
 GEONODE_USER = 'test_uploader'
 GEONODE_PASSWD = 'test_uploader'
@@ -708,6 +709,7 @@ class GeogigTest(unittest.TestCase):
 
     def test_geogig(self):
         '''Test formation of REST call to geoserver's geogig API'''
+        # Update this to expect XML
         author_name = "test"
         author_email = "testuser@geonode.org"
         cat = gs_catalog
@@ -718,16 +720,17 @@ class GeogigTest(unittest.TestCase):
             cat, fb_store_name, cat.get_default_workspace(),
             author_name, author_email)
 
-        fb_message = {
-            "authorName": author_name,
-            "authorEmail": author_email,
-            "parentDirectory":
-            settings.OGC_SERVER['default']['GEOGIG_DATASTORE_DIR']
-        }
+        fb_message = ET.Element('request')
+        authorName = ET.SubElement(fb_message, 'authorName')
+        authorName.text = author_name
+        authorEmail = ET.SubElement(fb_message, 'authorEmail')
+        authorEmail.text = author_email
+        directory = ET.SubElement(fb_message, 'parentDirectory')
+        directory.text = settings.OGC_SERVER['default']['GEOGIG_DATASTORE_DIR']
         fb_href = ("%sgeogig/repos/%s/init.json" %
                    (settings.OGC_SERVER['default']['LOCATION'], fb_store_name))
 
-        self.assertEquals(json.loads(fb_geogig.message()), fb_message)
+        self.assertEquals(fb_geogig.message(), ET.tostring(fb_message))
         self.assertEquals(fb_geogig.href, fb_href)
 
         settings.OGC_SERVER['default']['PG_GEOGIG'] = True
@@ -746,18 +749,25 @@ class GeogigTest(unittest.TestCase):
             cat, pg_store_name, cat.get_default_workspace(),
             author_name, author_email)
 
-        pg_message = {
-            "authorName": author_name,
-            "authorEmail": author_email,
-            "dbHost": settings.DATABASES['test-pg']['HOST'],
-            "dbPort": settings.DATABASES['test-pg']['PORT'],
-            "dbName": settings.DATABASES['test-pg']['NAME'],
-            "dbSchema": settings.DATABASES['test-pg']['SCHEMA'],
-            "dbUser": settings.DATABASES['test-pg']['USER'],
-            "dbPassword": settings.DATABASES['test-pg']['PASSWORD']
-        }
+        pg_message = ET.Element('request')
+        authorName = ET.SubElement(pg_message, 'authorName')
+        authorName.text = author_name
+        authorEmail = ET.SubElement(pg_message, 'authorEmail')
+        authorEmail.text = author_email
+        dbHost = ET.SubElement(pg_message, 'dbHost')
+        dbHost.text = settings.DATABASES['test-pg']['HOST']
+        dbPort = ET.SubElement(pg_message, 'dbPort')
+        dbPort.text = settings.DATABASES['test-pg']['PORT']
+        dbName = ET.SubElement(pg_message, 'dbName')
+        dbName.text = settings.DATABASES['test-pg']['NAME']
+        dbSchema = ET.SubElement(pg_message, 'dbSchema')
+        dbSchema.text = settings.DATABASES['test-pg']['SCHEMA']
+        dbUser = ET.SubElement(pg_message, 'dbUser')
+        dbUser.text = settings.DATABASES['test-pg']['USER']
+        dbPassword = ET.SubElement(pg_message, 'dbPassword')
+        dbPassword.text = settings.DATABASES['test-pg']['PASSWORD']
         pg_href = ("%sgeogig/repos/%s/init.json" %
                    (settings.OGC_SERVER['default']['LOCATION'], pg_store_name))
 
-        self.assertEquals(json.loads(pg_geogig.message()), pg_message)
+        self.assertEquals(pg_geogig.message(), ET.tostring(pg_message))
         self.assertEquals(pg_geogig.href, pg_href)
