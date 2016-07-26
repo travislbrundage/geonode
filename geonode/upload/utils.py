@@ -19,13 +19,12 @@
 #########################################################################
 
 import logging
-import os
 from django.conf import settings
 from geoserver.catalog import FailedRequestError
 from geonode.geoserver.helpers import ogc_server_settings, gs_catalog
 import httplib2
 from urlparse import urlparse
-import simplejson as json
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -98,21 +97,14 @@ def create_geoserver_db_featurestore(
                         "Error code (%s) from GeoServer: %s" %
                         (headers['status'], body))
 
-                ds = cat.create_datastore(store_name)
-                ds.type = "GeoGig"
-                cat.save(ds)
-                ds = cat.get_store(store_name)
-            else:
-                ds = cat.create_datastore(store_name)
-                ds.type = "GeoGig"
-                ds.connection_parameters.update(
-                    geogig_repository=os.path.join(
-                        ogc_server_settings.GEOGIG_DATASTORE_DIR,
-                        store_name),
-                    branch="master",
-                    create="true")
-                cat.save(ds)
-                ds = cat.get_store(store_name)
+            ds = cat.create_datastore(store_name)
+            ds.type = "GeoGig"
+            ds.connection_parameters.update(
+                geogig_repository=("geoserver://%s" % store_name),
+                branch="master",
+                create="true")
+            cat.save(ds)
+            ds = cat.get_store(store_name)
         else:
             logging.info(
                 'Creating target datastore %s' % dsname)
