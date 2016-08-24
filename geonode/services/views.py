@@ -561,7 +561,7 @@ def _register_indexed_service(type, url, name, username, password, verbosity=Fal
             # Create a layer import job
             WebServiceHarvestLayersJob.objects.get_or_create(service=service)
         else:
-            _register_indexed_layers(service, wms=wms)
+            _register_indexed_layers(service, wms=wms, owner=owner)
 
         message = "Service %s registered" % service.name
         return_dict = [{'status': 'ok',
@@ -586,7 +586,7 @@ def _register_indexed_service(type, url, name, username, password, verbosity=Fal
             status=400)
 
 
-def _register_indexed_layers(service, wms=None, verbosity=False):
+def _register_indexed_layers(service, wms=None, verbosity=False, owner=None):
     """
     Register layers for an indexed service (only WMS/OWS currently supported)
     """
@@ -643,7 +643,7 @@ def _register_indexed_layers(service, wms=None, verbosity=False):
                     title=wms_layer.title or wms_layer.name,
                     abstract=abstract or _("Not provided"),
                     uuid=layer_uuid,
-                    owner=None,
+                    owner=owner,
                     srid=srid,
                     bbox_x0=bbox[0],
                     bbox_x1=bbox[2],
