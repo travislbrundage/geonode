@@ -92,6 +92,12 @@ class Profile(AbstractUser):
     keywords = TaggableManager(_('keywords'), blank=True, help_text=_(
         'commonly used word(s) or formalised word(s) or phrase(s) used to describe the subject \
             (space or comma-separated'))
+    is_geogig_manager = models.BooleanField(
+        _('geogig manager'),
+        default=False,
+        blank=True,
+        help_text=_('Designates whether this user can manage GeoGig content.')
+    )
 
     def get_absolute_url(self):
         return reverse('profile_detail', args=[self.username, ])
