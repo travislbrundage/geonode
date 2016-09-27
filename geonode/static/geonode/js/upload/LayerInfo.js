@@ -101,19 +101,19 @@ define(function (require, exports) {
     LayerInfo.prototype.collectErrors = function () {
         var errors = [];
 
-		var mosaic_is_valid = true;
-		var is_granule = $('#' + this.name + '-mosaic').is(':checked');
+        var mosaic_is_valid = true;
+        var is_granule = $('#' + this.name + '-mosaic').is(':checked');
 
         var is_time_enabled = $('#' + this.name + '-timedim').is(':checked');
-		var is_time_valid = is_time_enabled && !$('#' + this.name + '-timedim-value-valid').is(':visible');
+        var is_time_valid = is_time_enabled && !$('#' + this.name + '-timedim-value-valid').is(':visible');
 
         if (is_granule && is_time_enabled) {
-			mosaic_is_valid = is_time_valid;
-		}
+            mosaic_is_valid = is_time_valid;
+        }
 
-		if (is_granule && !mosaic_is_valid) {
-			errors.push('The configuration of the file as a Mosaic Granule is not valid, please fix the issue and try again');
-		}
+        if (is_granule && !mosaic_is_valid) {
+            errors.push('The configuration of the file as a Mosaic Granule is not valid, please fix the issue and try again');
+        }
 
         if (this.type) {
             errors = this.type.findTypeErrors(this.getExtensions());
@@ -152,8 +152,8 @@ define(function (require, exports) {
     LayerInfo.prototype.prepareFormData = function (form_data) {
         var i, ext, file, perm, geogig, geogig_store, time, mosaic;
 
-		var base_ext  = this.main.name.split('.').pop();
-		var base_name = this.main.name.slice(0, -(base_ext.length+1));
+        var base_ext  = this.main.name.split('.').pop();
+        var base_name = this.main.name.slice(0, -(base_ext.length+1));
 
         var base_ext  = this.main.name.split('.').pop();
         var base_name = this.main.name.slice(0, -(base_ext.length+1));
@@ -188,15 +188,15 @@ define(function (require, exports) {
         }
         if (mosaic_enabled) {
             mosaic = $('#' + base_name + '-mosaic').is(':checked');
-			var is_time_valid = $('#' + base_name + '-timedim').is(':checked') && !$('#' + base_name + '-timedim-value-valid').is(':visible');
+            var is_time_valid = $('#' + base_name + '-timedim').is(':checked') && !$('#' + base_name + '-timedim-value-valid').is(':visible');
 
-			if (mosaic /*&& is_time_valid*/) {
-				form_data.append('mosaic', mosaic);
+            if (mosaic /*&& is_time_valid*/) {
+                form_data.append('mosaic', mosaic);
 
-				var append_to_mosaic_opts = $('#' + base_name + '-mosaic-granule').is(':checked');
-				var append_to_mosaic_name = $('#' + base_name + '-mosaic-granule-format-select').val();
+                var append_to_mosaic_opts = $('#' + base_name + '-mosaic-granule').is(':checked');
+                var append_to_mosaic_name = $('#' + base_name + '-mosaic-granule-format-select').val();
 
-				//console.log("append_to_mosaic_opts:" + append_to_mosaic_opts + " / append_to_mosaic_name:" + append_to_mosaic_name);
+                //console.log("append_to_mosaic_opts:" + append_to_mosaic_opts + " / append_to_mosaic_name:" + append_to_mosaic_name);
 
                 if (is_time_valid) {
                     var time_regex = $('#' + base_name + '-timedim-format-select').val();
@@ -248,11 +248,11 @@ define(function (require, exports) {
                     form_data.append('time_presentation_reference_value', time_presentation_reference_value);
                 }
 
-				form_data.append('append_to_mosaic_opts', append_to_mosaic_opts);
-				if (append_to_mosaic_opts) {
-					form_data.append('append_to_mosaic_name', append_to_mosaic_name);
-				}
-			}
+                form_data.append('append_to_mosaic_opts', append_to_mosaic_opts);
+                if (append_to_mosaic_opts) {
+                    form_data.append('append_to_mosaic_name', append_to_mosaic_name);
+                }
+            }
         }
 
         form_data.append('base_file', this.main);
@@ -560,7 +560,7 @@ define(function (require, exports) {
                 format: this.type.format,
                 geogig: geogig_enabled,
                 time: time_enabled,
-				mosaic: mosaic_enabled
+                mosaic: mosaic_enabled
             });
         file_queue.append(li);
         this.errors = this.collectErrors();
@@ -568,7 +568,7 @@ define(function (require, exports) {
         this.displayErrors();
         this.element = $(this.selector);
 
-	    var time_re_txt = "[0-9]{8}";
+        var time_re_txt = "[0-9]{8}";
 
         $('#' + this.name + '-mosaic').on('change', this.doImageMosaicToggle);
         $('#' + this.name + '-mosaic-granule').on('change', this.doImageMosaicGranuleOptionsToggle);
@@ -581,15 +581,15 @@ define(function (require, exports) {
 
              time_re_txt = input.val();
 
-			 var base_name = this.name.split('-timedim')[0];
+             var base_name = this.name.split('-timedim')[0];
 
-			 $('#' + base_name + '-timedim-value-valid').show();
+             $('#' + base_name + '-timedim-value-valid').show();
         });
 
         $('#' + this.name + '-timedim-presentation-format-select').on('change', function() {
              var input = $(this);
 
-			 var base_name = this.name.split('-timedim')[0];
+             var base_name = this.name.split('-timedim')[0];
 
              if (input.val() === 'DISCRETE_INTERVAL') {
                 $('#' + base_name + '-mosaic-timedim-presentation-res-options').show();
@@ -601,7 +601,7 @@ define(function (require, exports) {
         $('#' + this.name + '-timedim-defaultvalue-format-select').on('change', function() {
              var input = $(this);
 
-			 var base_name = this.name.split('-timedim')[0];
+             var base_name = this.name.split('-timedim')[0];
 
              if (input.val() === 'NEAREST' || input.val() === 'FIXED') {
                 $('#' + base_name + '-mosaic-timedim-defaultvalue-res-options').show();
@@ -616,10 +616,10 @@ define(function (require, exports) {
            var re = new RegExp(time_re_txt, "g");
            var is_valid = re.test(input.val());
            if(is_valid){
-		      $('#' + this.name + '-valid').hide();
-		   } else {
-		      $('#' + this.name + '-valid').show();
-	       }
+              $('#' + this.name + '-valid').hide();
+           } else {
+              $('#' + this.name + '-valid').show();
+           }
         });
 
         $('#' + this.name + '-timedim-defaultvalue-ref-value').on('input', function() {
@@ -628,10 +628,10 @@ define(function (require, exports) {
            var re = /(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})[+-](\d{2})\:(\d{2})/;
            var is_valid = re.test(input.val());
            if(is_valid){
-		      $('#' + this.name + '-valid').hide();
-		   } else {
-		      $('#' + this.name + '-valid').show();
-	       }
+              $('#' + this.name + '-valid').hide();
+           } else {
+              $('#' + this.name + '-valid').show();
+           }
         });
 
         $('#' + this.name + '\\:geogig_toggle').on('change', this.doGeoGigToggle);
@@ -706,10 +706,13 @@ define(function (require, exports) {
                     layer_name = target.data('layer'),
                     file_name  = target.data('file');
                 self.removeFile(file_name);
+                // if we removed the last file, remove this from the layers list entirely
+                if (self.files.length == 0) {
+                    delete layers[self.name];
+                }
                 if (file_ext === 'xml') {
                     $('#metadata_uploaded_preserve_check').hide();
                 }
-                self.displayRefresh();
             });
         });
     };
@@ -868,7 +871,7 @@ define(function (require, exports) {
 
 function updateUrl(url, key, value){
     if (key == null || value == null){
-    	return url;
+        return url;
     }
 
     var pair = key.concat('=').concat(value);

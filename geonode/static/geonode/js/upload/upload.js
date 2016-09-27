@@ -91,7 +91,12 @@ define(['underscore',
                 if (layers.hasOwnProperty(name)) {
                     info = layers[name];
                     $.merge(info.files, files[name]);
-                    info.displayFiles();
+                    // If there are no files, remove this, thought this shouldn't happen.
+                    if (info.files.length == 0) {
+                        delete layers[name];
+                    } else {
+                        info.displayFiles();
+                    }
                 } else {
                     info = new LayerInfo({
                         name: name,
@@ -350,6 +355,9 @@ define(['underscore',
         $(options.form).change(function (event) {
             // this is a mess
             buildFileInfo(_.groupBy(file_input.files, path.getName));
+            displayFiles(file_queue);
+        });
+        $(options.file_queue).on('click', 'a', function (event) {
             displayFiles(file_queue);
         });
         $(options.clear_button).on('click', doClearState);
