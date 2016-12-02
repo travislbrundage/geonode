@@ -314,7 +314,7 @@ INSTALLED_APPS = (
 
     # Social
     'account',
-    #'avatar',
+    'avatar',
     'dialogos',
     'agon_ratings',
     # 'notification',
