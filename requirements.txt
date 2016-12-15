@@ -43,7 +43,9 @@ geonode-arcrest==10.2
 geonode-avatar==2.1.6
 geonode-dialogos==0.6
 geonode-notification==1.1.1
-geonode-user-accounts==1.0.13
+#geonode-user-accounts==1.0.13
+# this might break shit because it's not a stable version, let's find out!
+-e git+git://github.com/GeoNode/geonode-user-accounts@master#egg=geonode-user-accounts
 geonode-user-messages==0.1.4
 gisdata==0.5.4
 gsconfig==1.0.6
