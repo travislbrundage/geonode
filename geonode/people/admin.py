@@ -50,7 +50,7 @@ class ProfileAdmin(admin.ModelAdmin):
     add_form_template = 'admin/auth/user/add_form.html'
     change_user_password_template = None
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('username',)}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups')}),
@@ -96,10 +96,7 @@ class ProfileAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         from django.conf.urls import patterns
-        return patterns('',
-                        (r'^(\d+)/password/$',
-                         self.admin_site.admin_view(self.user_change_password))
-                        ) + super(ProfileAdmin, self).get_urls()
+        return super(ProfileAdmin, self).get_urls()
 
     def lookup_allowed(self, lookup, value):
         # See #20078: we don't want to allow any lookups involving passwords.
@@ -137,50 +134,6 @@ class ProfileAdmin(admin.ModelAdmin):
         extra_context.update(defaults)
         return super(ProfileAdmin, self).add_view(request, form_url,
                                                   extra_context)
-
-    @sensitive_post_parameters_m
-    def user_change_password(self, request, id, form_url=''):
-        if not self.has_change_permission(request):
-            raise PermissionDenied
-        user = get_object_or_404(self.get_queryset(request), pk=id)
-        if request.method == 'POST':
-            form = self.change_password_form(user, request.POST)
-            if form.is_valid():
-                form.save()
-                change_message = self.construct_change_message(
-                    request,
-                    form,
-                    None)
-                self.log_change(request, user, change_message)
-                msg = ugettext('Password changed successfully.')
-                messages.success(request, msg)
-                return HttpResponseRedirect('..')
-        else:
-            form = self.change_password_form(user)
-
-        fieldsets = [(None, {'fields': list(form.base_fields)})]
-        adminForm = admin.helpers.AdminForm(form, fieldsets, {})
-
-        context = {
-            'title': _('Change password: %s') % escape(user.get_username()),
-            'adminForm': adminForm,
-            'form_url': form_url,
-            'form': form,
-            'is_popup': IS_POPUP_VAR in request.REQUEST,
-            'add': True,
-            'change': False,
-            'has_delete_permission': False,
-            'has_change_permission': True,
-            'has_absolute_url': False,
-            'opts': self.model._meta,
-            'original': user,
-            'save_as': False,
-            'show_save': True,
-        }
-        return TemplateResponse(request,
-                                self.change_user_password_template or
-                                'admin/auth/user/change_password.html',
-                                context, current_app=self.admin_site.name)
 
     def response_add(self, request, obj, post_url_continue=None):
         """
