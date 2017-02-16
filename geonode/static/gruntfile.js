@@ -77,7 +77,7 @@ module.exports = function(grunt) {
           dest: 'lib/css',
           src: [
             'datatables/media/css/jquery.dataTables.css',
-            'select2/select2.min.css',
+            'select2/select2.css',
             'multi-select/css/multi-select.css',
             'jquery-ui/themes/smoothness/jquery-ui.css',
             'jquery-tree-multiselect/dist/jquery.tree-multiselect.min.css',
@@ -230,18 +230,8 @@ module.exports = function(grunt) {
             'lib/js/fastselect.standalone.min.js',
             'lib/js/bootstrap.min.js',
             'lib/js/bootstrap-datetimepicker.min.js',
-            'lib/js/bootstrap-tokenfield.min.js',
             'lib/js/bootstrap-treeview.min.js',
-            'lib/js/bootstrap-select.min.js',
-            'lib/js/bootstrap-wysihtml5-0.0.2.min.js',
-            'lib/js/angular.min.js',
-            'lib/js/jquery.ajaxprogress.js',
-            'lib/js/jquery.ajaxQueue.min.js',
-            'lib/js/jquery.multi-select.js',
-            'lib/js/jquery.tree-multiselect.min.js',
-            'lib/js/jquery.treefilter-min.js',
-            'lib/js/angular-leaflet-directive.min.js',
-            'lib/js/ZeroClipboard.min.js'
+            'lib/js/bootstrap-tokenfield.js'
           ],
           'lib/js/jquery.js': ['lib/js/jquery.min.js'],
           'lib/js/require.js': ['lib/js/require.js'],
