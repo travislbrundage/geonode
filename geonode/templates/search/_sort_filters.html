@@ -6,30 +6,43 @@
       <div ng-if="dataValue == 'title'" ng-cloak>
         <i class="fa fa-sort-alpha-asc fa-lg"></i>
         <i class="fa fa-angle-down fa-lg"></i>
+        <img src="{{ STATIC_URL }}geonode/css/exported/lg-angle-down.png">
       </div>
       <div ng-if="dataValue == '-title'" ng-cloak>
-        <i class="fa fa-sort-alpha-desc fa-lg"></i>
-        <i class="fa fa-angle-down fa-lg"></i>
+        <i class="fa fa-sort-alpha-desc"></i>
+        <i class="fa fa-angle-down"></i>
+        <img src="{{ STATIC_URL }}geonode/css/exported/angle-down.png">
       </div>
       <div ng-if="dataValue == 'date'" ng-cloak>
-        <i class="fa fa-clock-o"></i>
-        <i class="fa fa-clock-o fa-level-up"></i>
-        <i class="fa fa-angle-down fa-lg"></i>
+        <!--
+        <i class="fa fa-clock-o fa-2x"></i>
+        <i class="fa fa-clock-o fa-level-up fa-2x"></i>
+        <i class="fa fa-angle-down fa-2x"></i>
+        -->
+        <img src="{{ STATIC_URL }}geonode/css/exported/2x-clock-o.png">
+        <img src="{{ STATIC_URL }}geonode/css/exported/2x-level-up.png">
+        <img src="{{ STATIC_URL }}geonode/css/exported/2x-angle-down.png">
       </div>
       <div ng-if="dataValue == '-date'" ng-cloak>
-        <i class="fa fa-clock-o"></i>
-        <i class="fa fa-clock-o fa-level-down"></i>
-        <i class="fa fa-angle-down fa-lg"></i>
+        <!--
+        <i class="fa fa-clock-o fa-3x"></i>
+        <i class="fa fa-clock-o fa-level-down fa-3x"></i>
+        <i class="fa fa-angle-down fa-3x"></i>
+        -->
+        <img src="{{ STATIC_URL }}geonode/css/exported/3x-angle-down.png" style="display: inline-block; margin: auto; box-sizing: border-box;">
       </div>
       <div ng-if="dataValue == '-popular_count'" ng-cloak>
-        <i class="fa fa-fire fa-lg"></i>
-        <i class="fa fa-angle-down fa-lg"></i>
+        <i class="fa fa-fire fa-4x"></i>
+        <i class="fa fa-angle-down fa-4x"></i>
+        <img src="{{ STATIC_URL }}geonode/css/exported/4x-angle-down.png">
       </div>
       <div ng-if="dataValue == null" ng-cloak>
-        <i class="fa fa-clock-o"></i>
-        <i class="fa fa-clock-o fa-level-down"></i>
-        <i class="fa fa-angle-down fa-lg"></i>
+        <i class="fa fa-clock-o fa-5x"></i>
+        <i class="fa fa-clock-o fa-level-down fa-5x"></i>
+        <i class="fa fa-angle-down fa-5x"></i>
+        <img src="{{ STATIC_URL }}geonode/css/exported/5x-angle-down.png">
       </div>
+      <!-- <img src="{{ STATIC_URL }}geonode/css/exported/imgfile.png" style="height: 16px; width: 16px"> -->
     </button>
     <ul class="dropdown-menu dropdown-menu-right" id="sort">
       {% if facet_type != 'groups' and facet_type != 'people' %}
