@@ -86,6 +86,8 @@
     </form>
   </div>
 </div>
-
+{% endblock %}
+{% block extra_script %}
 {{ block.super }}
-{% endblock body_outer %}
+ {% include 'metadata_form_js.html' %} 
+{% endblock %}
