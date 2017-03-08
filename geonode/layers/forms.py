@@ -194,6 +194,9 @@ class NewLayerUploadForm(LayerUploadForm):
 
     spatial_files = tuple(spatial_files)
 
+    geogig = forms.BooleanField(required=False)
+    geogig_store = forms.CharField(required=False)
+
 
 class LayerDescriptionForm(forms.Form):
     title = forms.CharField(300)
