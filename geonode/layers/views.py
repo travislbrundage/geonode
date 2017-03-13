@@ -570,9 +570,11 @@ def layer_metadata(request, layername, template='layers/layer_metadata.html', aj
             up_sessions = UploadSession.objects.filter(layer=the_layer.id)
             if up_sessions.count() > 0 and up_sessions[0].user != the_layer.owner:
                 up_sessions.update(user=the_layer.owner)
-            Layer.objects.filter(id=the_layer.id).update(
-                category=new_category
-                )
+            the_layer.poc = new_poc
+            the_layer.metadata_author = new_author
+            l = Layer.objects.get(id=the_layer.id)
+            l.category=new_category
+            l.save()
 
             if getattr(settings, 'SLACK_ENABLED', False):
                 try:
