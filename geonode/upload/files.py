@@ -217,12 +217,21 @@ def scan_file(file_name):
 
     if zipfile.is_zipfile(file_name):
         # rename this now
+        # This is what's called, need to fix this for Mac OS X
         logger.debug('{} is a zip.'.format(file_name))
         file_name = _rename_files([file_name])[0]
         zf = None
         try:
+            # So this fails why?
+            # /tmp/tmpdV4G1Z/Maryland_Bay_Scallops.zip
+            # replace length - 12,16
+            #name_length = len(file_name)
+            #file_name[name_length-12] = ' '
+            #file_name[name_length-16] = ' '
+            logger.debug('file_name: ' + file_name)
             zf = zipfile.ZipFile(file_name, 'r')
             files = zf.namelist()
+            logger.debug('files: ' + files)
             if _contains_bad_names(files):
                 zf.extractall(dirname)
                 files = None

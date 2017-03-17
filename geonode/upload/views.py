@@ -274,7 +274,9 @@ def save_step_view(req, session):
         logger.debug('Tempdir: {0}, basefile: {1}'.format(tempdir, base_file))
         name, ext = os.path.splitext(os.path.basename(base_file))
         logger.debug('Name: {0}, ext: {1}'.format(name, ext))
+        # See what this does v
         base_file = files.scan_file(base_file)
+        # This makes the files bad ^
         logger.debug(base_file)
         import_session = upload.save_step(
             req.user,

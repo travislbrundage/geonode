@@ -216,6 +216,9 @@ def save_step(user, layer, spatial_files, overwrite=True,
               time_presentation_default_value=None, time_presentation_reference_value=None):
     _log('Uploading layer: [%s], files [%s]', layer, spatial_files)
 
+    #import traceback
+    #traceback.print_stack()
+
     if len(spatial_files) > 1:
         # we only support more than one file if they're rasters for mosaicing
         if not all(
