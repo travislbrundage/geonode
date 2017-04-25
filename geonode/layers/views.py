@@ -858,7 +858,7 @@ def layer_thumbnail(request, layername):
             )
     else:
         if(layer_obj.has_thumbnail()):
-            #layer_obj.get_thumbnail_url() 
+            #layer_obj.get_thumbnail_url()
 
             return HttpResponse(
                 content=layer_obj.get_thumbnail_url(),
@@ -896,7 +896,7 @@ def get_layer(request, layername):
             'bbox_x1': layer_obj.bbox_x1,
             'bbox_y0': layer_obj.bbox_y0,
             'bbox_y1': layer_obj.bbox_y1,
-            'attributes': dict([(l.attribute, l.attribute_label) for l in visible_attributes]),
+            'attributes': attributes_as_json(layer_obj)
         }
         return HttpResponse(json.dumps(
             response,
@@ -913,11 +913,18 @@ def layer_metadata_detail(request, layername, template='layers/layer_metadata_de
         'SITEURL': settings.SITEURL[:-1]
     }))
 
+def attributes_as_json(layer):
+    attributes = []
+    for attribute in layer.attributes:
+        attributes.append(attribute_as_json(attribute))
+    return attributes
 
-def layer_metadata_upload(request, layername, template='layers/layer_metadata_upload.html'):
-    layer = _resolve_layer(request, layername, 'view_resourcebase', _PERMISSION_MSG_METADATA)
-    return render_to_response(template, RequestContext(request, {
-        "resource": layer,
-        "layer": layer,
-        'SITEURL': settings.SITEURL[:-1]
-    }))
+def attribute_as_json(attribute):
+    return {
+        'attribute': attribute.attribute,
+        'description': attribute.description,
+        'attribute_label': attribute.attribute_label,
+        'attribute_type': attribute.attribute_type,
+        'visible': attribute.visible,
+        'display_order': attribute.display_order
+    }
