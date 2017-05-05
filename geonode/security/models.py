@@ -159,7 +159,6 @@ class PermissionLevelMixin(object):
 
         if settings.DEFAULT_ANONYMOUS_DOWNLOAD_PERMISSION:
             assign_perm('download_resourcebase', anonymous_group, self.get_self_resource())
-            set_geofence_permissions = True
 
         # default permissions for resource owner
         set_owner_permissions(self)

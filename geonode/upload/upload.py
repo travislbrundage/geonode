@@ -623,25 +623,19 @@ def final_step(upload_session, user):
                 logger.error(msg)
                 e.args = (msg,)
 
-        if style is None:
+            # what are we doing with this var?
+            msg = 'No style could be created for the layer, falling back to POINT default one'
             try:
-                style = cat.get_style(name)
+                style = cat.get_style(name + '_layer')
             except:
-                logger.warn('Could not retreive the Layer default Style name')
-                # what are we doing with this var?
-                msg = 'No style could be created for the layer, falling back to POINT default one'
-                try:
-                    style = cat.get_style(name + '_layer')
-                except:
-                    style = cat.get_style('point')
-                    logger.warn(msg)
-                    e.args = (msg,)
+                style = cat.get_style('point')
+                logger.warn(msg)
+                e.args = (msg,)
 
-        if style:
-            # FIXME: Should we use the fully qualified typename?
-            publishing.default_style = style
-            _log('default style set to %s', name)
-            cat.save(publishing)
+        # FIXME: Should we use the fully qualified typename?
+        publishing.default_style = style
+        _log('default style set to %s', name)
+        cat.save(publishing)
 
     _log('Creating Django record for [%s]', name)
     target = task.target
