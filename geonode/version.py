@@ -49,7 +49,22 @@ def get_version(version=None):
         mapping = {'alpha': 'a', 'beta': 'b', 'rc': 'c'}
         sub = mapping[version[3]] + str(version[4])
 
-    return main + sub
+    commit = None
+    repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _commit = subprocess.Popen(
+        'git rev-parse --short HEAD',
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        cwd=repo_dir,
+        universal_newlines=True
+    )
+    commit = _commit.communicate()[0].partition('\n')[0]
+
+    if commit:
+        return main + sub + '.' + commit
+    else:
+        return main + sub
 
 
 def get_git_changeset():
