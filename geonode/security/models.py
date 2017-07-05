@@ -299,6 +299,9 @@ def set_geofence_all(instance):
                 payload = payload + resource.layer.name
                 payload = payload + "</layer><access>ALLOW</access></Rule>"
                 create_geofence_rule(payload)
+        except:
+            tb = traceback.format_exc()
+            logger.debug(tb)
 
 
 def set_geofence_user(instance, username, view_perms=False, download_perms=False):
