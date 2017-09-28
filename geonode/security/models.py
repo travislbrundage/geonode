@@ -552,7 +552,7 @@ def get_geofence_rules(workspace=None, layer=None, output_type='xml'):
             return rules
     else:
         logger.warning("Could not get rule from GeoFence")
-    return None
+    return []
 
 
 def delete_geofence_rule(id):
