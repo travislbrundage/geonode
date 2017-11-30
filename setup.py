@@ -114,7 +114,7 @@ setup(name='GeoNode',
 
         # haystack/elasticsearch, uncomment to use
         "django-haystack==2.6.1",  # missing from ppa FIXME
-        "elasticsearch==5.4.0",
+        "elasticsearch>=2.0.0,<3.0.0",
         "pyelasticsearch==1.4",
 
         # datetimepicker widget
