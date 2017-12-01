@@ -37,6 +37,12 @@ from .utils import format_address
 if 'notification' in settings.INSTALLED_APPS:
     from notification import models as notification
 
+from exchange.elasticsearchapp.search import ProfileIndex
+from agon_ratings.models import OverallRating
+from dialogos.models import Comment
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Avg
+
 
 class ProfileUserManager(UserManager):
     def get_by_natural_key(self, username):
@@ -136,6 +142,26 @@ class Profile(AbstractUser):
     @property
     def location(self):
         return format_address(self.delivery, self.zipcode, self.city, self.area, self.country)
+
+    # elasticsearch_dsl indexing
+    def indexing(self):
+        obj = ProfileIndex(
+            meta={'id': self.id},
+            id=self.id,
+            username=self.username,
+            first_name=self.first_name,
+            last_name=self.last_name,
+            profile=self.profile,
+            organization=self.organization,
+            position=self.position,
+            type=self.prepare_type()
+        )
+        obj.save()
+        return obj.to_dict(include_meta=True)
+
+    # elasticsearch_dsl indexing helper functions
+    def prepare_type(self):
+        return "user"
 
 
 def get_anonymous_user_instance(Profile):
