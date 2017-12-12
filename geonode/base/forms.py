@@ -24,6 +24,7 @@ from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from mptt.forms import TreeNodeMultipleChoiceField
 from bootstrap3_datetime.widgets import DateTimePicker
@@ -31,6 +32,9 @@ from modeltranslation.forms import TranslationModelForm
 
 from geonode.base.models import TopicCategory, Region
 from geonode.people.models import Profile
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class CategoryChoiceField(forms.ModelChoiceField):
@@ -164,6 +168,14 @@ class ResourceBaseForm(TranslationModelForm):
                         'data-placement': 'right',
                         'data-container': 'body',
                         'data-html': 'true'})
+            
+    def clean_keywords(self):
+        keywords = self.cleaned_data['keywords']
+        logger.debug('KEYWORDS--------------------- %s', keywords)
+        filtered = set(keywords) - set(getattr(settings, 'KEYWORD_FILTER', []))
+        logger.debug('Filtered KEYWORDS--------------------- %s', keywords)
+        return filtered
+
 
     class Meta:
         exclude = (
