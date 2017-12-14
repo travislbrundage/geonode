@@ -118,6 +118,7 @@ setup(name='GeoNode',
         # "pyelasticsearch==1.4",
 
         # elasticsearch-dsl app
+        "elasticsearch>=2.0.0,<3.0.0",
         "geonode-elasticsearch-app==0.1.1",
 
         # datetimepicker widget
