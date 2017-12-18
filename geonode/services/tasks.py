@@ -23,6 +23,7 @@ from celery.task import periodic_task
 from django.conf import settings
 from geonode.services.models import WebServiceHarvestLayersJob, WebServiceRegistrationJob
 from geonode.services.views import update_layers, register_service_by_type
+from geonode.people.models import Profile
 from django.core.mail import send_mail
 
 
@@ -44,17 +45,29 @@ def harvest_service_layers():
 
 
 @periodic_task(run_every=crontab(minute=settings.SERVICE_UPDATE_INTERVAL))
-def import_service():
+def import_service(job_id=None, owner='admin', name=None):
     boundsJobs = WebServiceRegistrationJob.objects.all()
-    for job in boundsJobs.filter(status="pending"):
+    args = {'status': 'pending'}
+
+    if job_id:
+        args.update({'pk': job_id})
+
+    response = {}
+    for job in boundsJobs.filter(**args):
         try:
             job.status = "process"
             job.save()
-            register_service_by_type(
-                job.base_url, job.type, username=None, password=None, owner=None)
-            job.delete()
+            response = register_service_by_type(
+                job.base_url, job.type, owner=Profile.objects.get(username=owner), name=name)
+            job.status = "completed"
+            job.result = response
+            job.save()
+            #job.delete()
         except Exception, e:
             job.status = 'failed'
+            job.result = str(e)
+            response.update({'error': str(e)})
             job.save()
-            send_mail('Service import failed', 'Service %s failed, error is %s' % (job.base_url, str(e)),
-                      settings.DEFAULT_FROM_EMAIL, [email for admin, email in settings.ADMINS], fail_silently=True)
+            raise e
+
+    return response
