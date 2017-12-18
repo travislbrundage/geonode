@@ -53,7 +53,8 @@ class CreateServiceForm(forms.Form):
     #         attrs={'size':'50', 'class':'inputText'}))
     url = forms.CharField(label=_("Service URL"), max_length=512,
                           widget=forms.TextInput(
-        attrs={'size': '65', 'class': 'inputText'}))
+        attrs={'size': '65', 'class': 'inputText'}),
+                          help_text ='e.g. http://example.com/arcgis/rest/services/elevation/hillshade/MapServer or http://example.com/geoserver/tiger/poi/wms')
     name = forms.CharField(label=_('Service name'), max_length=128,
                            widget=forms.TextInput(
         attrs={'size': '65', 'class': 'inputText'}), required=False)
