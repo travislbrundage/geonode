@@ -35,7 +35,8 @@ from geonode.security.models import remove_object_permissions
 STATUS_VALUES = [
     'pending',
     'failed',
-    'process'
+    'process',
+    'completed'
 ]
 
 logger = logging.getLogger("geonode.services")
@@ -143,6 +144,7 @@ class WebServiceRegistrationJob(models.Model):
     type = models.CharField(max_length=4, choices=SERVICE_TYPES)
     status = models.CharField(choices=[(
         x, x) for x in STATUS_VALUES], max_length=10, blank=False, null=False, default='pending')
+    result = models.TextField(blank=True, null=True)
 
 
 def post_save_service(instance, sender, created, **kwargs):
