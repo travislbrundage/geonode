@@ -20,7 +20,7 @@
 
 from django.contrib import admin
 
-from geonode.services.models import Service, ServiceLayer
+from geonode.services.models import Service, ServiceLayer, WebServiceRegistrationJob, WebServiceHarvestLayersJob
 from geonode.base.admin import ResourceBaseAdminForm
 
 
@@ -31,6 +31,18 @@ class ServiceAdminForm(ResourceBaseAdminForm):
         fields = '__all__'
 
 
+class WebServiceRegistrationJobAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = WebServiceRegistrationJob
+        fields = '__all__'
+
+class WebServiceHarvestLayersJobAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = WebServiceHarvestLayersJob
+        fields = '__all__'
+
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'type', 'method')
     list_display_links = ('id', 'name', )
@@ -38,5 +50,7 @@ class ServiceAdmin(admin.ModelAdmin):
     form = ServiceAdminForm
 
 
+admin.site.register(WebServiceHarvestLayersJob, WebServiceHarvestLayersJobAdmin)
+admin.site.register(WebServiceRegistrationJob, WebServiceRegistrationJobAdmin)
 admin.site.register(Service, ServiceAdmin)
 admin.site.register(ServiceLayer)
