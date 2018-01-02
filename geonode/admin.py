@@ -18,11 +18,12 @@
 #
 #########################################################################
 
-from django.contrib.admin import AdminSite
+from django.contrib import admin
 from django.utils.translation import ugettext_lazy
 from django.conf import settings
 
-class GeonodeAdminSite(AdminSite):
+
+class GeonodeAdminSite(admin.AdminSite):
 
     # The text to put at the top of each admin page, as an <h1> (a string).
     # By default, this is "Django administration".
@@ -36,4 +37,5 @@ class GeonodeAdminSite(AdminSite):
     # By default, this is "Site administration".
     index_title = '%s %s' % (settings.SITENAME, ugettext_lazy('Administration'))
 
-admin_site = GeonodeAdminSite()
+admin.site = GeonodeAdminSite()
+
