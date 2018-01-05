@@ -27,7 +27,6 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 
 import geonode.proxy.urls
-from geonode.admin import admin_site
 from geonode.api.urls import api
 from geonode.api.views import verify_token, roles, users, admin_role
 
@@ -35,8 +34,6 @@ import autocomplete_light
 
 # Setup Django Admin
 autocomplete_light.autodiscover()
-
-admin.autodiscover()
 
 js_info_dict = {
     'domain': 'djangojs',
@@ -103,7 +100,7 @@ urlpatterns = patterns('',
 
                        (r'^i18n/', include('django.conf.urls.i18n')),
                        (r'^autocomplete/', include('autocomplete_light.urls')),
-                       (r'^admin/', include(admin_site.urls)),
+                       (r'^admin/', include(admin.site.urls)),
                        (r'^groups/', include('geonode.groups.urls')),
                        (r'^documents/', include('geonode.documents.urls')),
                        (r'^services/', include('geonode.services.urls')),
