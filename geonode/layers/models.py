@@ -41,6 +41,10 @@ from geonode.security.models import remove_object_permissions
 from dialogos.models import Comment
 from django.db.models import Avg
 
+from six.moves.urllib_parse import urlparse
+
+from ..services.enumerations import INDEXED
+
 logger = logging.getLogger("geonode.layers.models")
 
 shp_exts = ['.shp', ]
@@ -113,10 +117,12 @@ class Layer(ResourceBase):
 
     default_style = models.ForeignKey(
         Style,
+        on_delete=models.SET_NULL,
         related_name='layer_default_style',
         null=True,
         blank=True)
     styles = models.ManyToManyField(Style, related_name='layer_styles')
+    service = models.ForeignKey("services.Service", null=True, blank=True)
 
     charset = models.CharField(max_length=255, default='UTF-8')
 
@@ -125,16 +131,6 @@ class Layer(ResourceBase):
     @property
     def is_remote(self):
         return self.storeType == "remoteStore"
-
-    @property
-    def service(self):
-        """Get the related service object dynamically
-        """
-        service_layers = self.servicelayer_set.all()
-        if len(service_layers) == 0:
-            return None
-        else:
-            return service_layers[0].service
 
     def is_vector(self):
         return self.storeType == 'dataStore'
@@ -185,10 +181,10 @@ class Layer(ResourceBase):
 
     @property
     def service_typename(self):
-        if self.is_remote:
+        if self.service is not None and self.service.method == INDEXED:
             return "%s:%s" % (self.service.name, self.typename)
         else:
-            return self.typename
+            return self.alternate or self.typename
 
     @property
     def attributes(self):
@@ -305,7 +301,7 @@ class Layer(ResourceBase):
                 supplemental_information=self.prepare_supplemental_information(),
                 thumbnail_url=self.thumbnail_url,
                 uuid=self.uuid,
-                title=self.title,
+                title=self.prepare_title(),
                 date=self.date,
                 type=self.prepare_type(),
                 subtype=self.prepare_subtype(),
@@ -323,7 +319,9 @@ class Layer(ResourceBase):
                 num_ratings=self.prepare_num_ratings(),
                 num_comments=self.prepare_num_comments(),
                 geogig_link=self.geogig_link,
-                has_time=self.prepare_has_time()
+                has_time=self.prepare_has_time(),
+                references=self.prepare_references(),
+                source_host=self.prepare_source_host()
             )
             obj.save()
             return obj.to_dict(include_meta=True)
@@ -331,6 +329,21 @@ class Layer(ResourceBase):
     # elasticsearch_dsl indexing helper functions
     def prepare_type(self):
         return "layer"
+
+    def prepare_source_host(self):
+        if self.service is not None and self.service.method == INDEXED:
+            return urlparse(self.service.base_url).netloc
+        else:
+            return None
+
+    def prepare_title(self):
+        if self.service is not None:
+            return '{} {}'.format(self.service.title.strip(), self.title)
+        else:
+            return self.title
+
+    def prepare_references(self):
+        return [{'name': link.name, 'scheme':link.link_type, 'url': link.url} for link in self.link_set.ows()]
 
     def prepare_subtype(self):
         if self.storeType == "dataStore":
@@ -374,7 +387,7 @@ class Layer(ResourceBase):
             return 0
 
     def prepare_title_sortable(self):
-        return self.title.lower()
+        return self.prepare_title().lower()
 
     # Check to see if either time extent is set on the object,
     # if so, then it is time enabled.

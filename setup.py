@@ -116,7 +116,7 @@ setup(name='GeoNode',
         "elasticsearch-dsl>=6.0.0,<7.0.0",
 
         # elasticsearch-dsl app
-        "geonode-elasticsearch-app==0.2.0",
+        "geonode-elasticsearch-app==0.2.1",
 
         # datetimepicker widget
         "django-bootstrap3-datetimepicker==2.2.3",
@@ -125,7 +125,8 @@ setup(name='GeoNode',
         "django-storages==1.1.8",
 
         # https://github.com/benjaminp/six/issues/210
-        "six==1.10.0"
+        "six==1.10.0",
+        'ArcREST-Package==3.5.9'
         ],
       zip_safe=False,
       )

@@ -18,4 +18,23 @@
 #
 #########################################################################
 
-default_app_config = "geonode.services.apps.ServicesAppConfig"
+
+#from django.db.models import signals
+
+from django.apps import AppConfig
+
+#from ..layers.models import Layer
+#from .models import Service
+#from . import signals as services_signals
+
+
+class ServicesAppConfig(AppConfig):
+    name = "geonode.services"
+
+    def ready(self):
+        """Connect relevant signals to their corresponding handlers"""
+        pass
+        #signals.post_delete.connect(
+        #    services_signals.remove_harvest_job, sender=Layer)
+        #signals.post_save.connect(
+        #    services_signals.post_save_service, sender=Service)
