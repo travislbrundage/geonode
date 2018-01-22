@@ -288,7 +288,7 @@ def pre_save_document(instance, sender, **kwargs):
         instance.bbox_x1 = instance.resource.bbox_x1
         instance.bbox_y0 = instance.resource.bbox_y0
         instance.bbox_y1 = instance.resource.bbox_y1
-    else:
+    elif any(val is None for val in instance.bbox):
         instance.bbox_x0 = -180
         instance.bbox_x1 = 180
         instance.bbox_y0 = -90
