@@ -1,6 +1,7 @@
 {% extends "services/services_base.html" %}
 {% load i18n %}
 {% load guardian_tags %}
+{% load bootstrap_tags %}
 {% block head %}
 {% include "geonode/ext_header.html" %}
 {% include "geonode/app_header.html" %}
@@ -159,8 +160,34 @@ Ext.onReady(function() {
             <!--
                 TODO:Enable SSL Config Modal
             -->
-            {% if "https" in service.online_resource %}
+            {% if "https" in service.base_url or SITEURL in service.base_url %}
                 <li class="list-group-item"><a id="modifySSLConfig" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#modify-ssl-config">{% trans "Modify SSL Config" %}</a></li>
+                <div class="modal fade" id="modify-ssl-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">{% trans "Manage SSL Config" %}</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row edit-modal">
+                            <form method="POST" id="modify_ssl_config_form">
+                                {% csrf_token %}
+                                {{ form|as_bootstrap }}
+                                <label for="selected_ssl_description" class="control-label  ">
+                                    SSL Config Description
+                                </label>
+                                <p id="selected_ssl_description"></p>
+                                <input type="submit" class="btn btn-primary" data-toggle="modal" data-dismiss="modify-ssl-config" id="submit_button" value="{% trans "Save" %}" />
+                            </form>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "Close" %}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             {% endif %}
         {% endif %}
         {% if  "remove_service" or "delete_service" in resource_perms %}
@@ -193,4 +220,75 @@ Ext.onReady(function() {
             });
         });
     </script>
+    {% if "https" in service.base_url or SITEURL in service.base_url %}
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // begin helper functions
+                var enableSelect = function(select_id) {
+                    $('#' + select_id).prop('disabled', false);
+                };
+                var disableSelect = function(select_id) {
+                    $('#' + select_id).prop('disabled', true);
+                };
+                var fullHttpsUrl = function(url) {
+                    return url.indexOf('https://') === 0 && url.length > 8;
+                };
+                var parseUrlForHostnamePort = function(url) {
+                    if (fullHttpsUrl(url)) {
+                        return url.split('https://')[1].split('/')[0];
+                    }
+                    return url;
+                };
+                var getSslConfigPkByUrl = function(url) {
+                    var hostname_mappings = {{ hostname_mappings }};
+                    if (hostname_mappings && hostname_mappings[url]) {
+                        return hostname_mappings[url];
+                    }
+                    return null;
+                };
+                var selectSslConfig = function(select_id, value) {
+                    $('#' + select_id + ' option[value=' + value + ']').prop('selected', true);
+                };
+                var getSslDescriptionByPk = function(pk) {
+                  var ssl_descriptions = {{ ssl_descriptions }};
+                  if (ssl_descriptions && ssl_descriptions[pk]) {
+                    return ssl_descriptions[pk];
+                  }
+                  return '';
+                };
+                var updateDescription = function(elem_id, description) {
+                    $('#' + elem_id).text(description);
+                };
+                var toggleSslConfigSelectBasedOnUrl = function(url, select_id, description_id) {
+                    var ssl_pk = getSslConfigPkByUrl(parseUrlForHostnamePort(url));
+                    if (ssl_pk) {
+                        selectSslConfig(select_id, ssl_pk);
+                        updateDescription(description_id, getSslDescriptionByPk(ssl_pk));
+                    }
+                };
+
+                var getSelectedValue = function(select_id) {
+                    return $('#' + select_id).find('option:selected').attr('value');
+                };
+                var displayDescriptionBasedOnSelection = function(select_id, description_id) {
+                  updateDescription(description_id, getSslDescriptionByPk(getSelectedValue(select_id)));
+                };
+                // end helper functions
+
+
+                // check on initial page load
+                var select_id = 'id_ssl_config';
+                var service_url = '{{service.base_url}}';
+                var description_id ='selected_ssl_description';
+                toggleSslConfigSelectBasedOnUrl(service_url, select_id, description_id);
+                displayDescriptionBasedOnSelection(select_id, description_id);
+
+                // detecting any change to the SSL config select field
+                var ssl_config_select_field = $('#' + select_id);
+                ssl_config_select_field.on("change", function() {
+                    displayDescriptionBasedOnSelection(select_id, description_id);
+                });
+            })
+        </script>
+    {% endif %}
 {% endblock extra_script %}
