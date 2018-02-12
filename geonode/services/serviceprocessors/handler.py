@@ -30,7 +30,7 @@ from .mapserver import MapserverServiceHandler
 logger = logging.getLogger(__name__)
 
 
-def get_service_handler(base_url, service_type=enumerations.AUTO, headers=None):
+def get_service_handler(base_url, service_type=enumerations.AUTO):
     """Return the appropriate remote service handler for the input URL.
 
     If the service type is not explicitly passed in it will be guessed from
@@ -54,8 +54,7 @@ def get_service_handler(base_url, service_type=enumerations.AUTO, headers=None):
         for type_ in to_check:
             logger.info("Checking {}...".format(type_))
             try:
-                service = get_service_handler(base_url, type_,
-                                              headers=(headers or None))
+                service = get_service_handler(base_url, type_)
             except Exception:
                 pass  # move on to the next service type
             else:
@@ -66,7 +65,7 @@ def get_service_handler(base_url, service_type=enumerations.AUTO, headers=None):
     else:
         handler = handlers.get(service_type, {}).get("handler")
         try:
-            service = handler(base_url, headers=headers)
+            service = handler(base_url)
         except Exception:
             logger.exception(
                 msg="Could not parse service {!r}".format(base_url))
