@@ -33,6 +33,12 @@ from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.template import RequestContext, loader
 from django.utils.translation import ugettext as _
+import json
+from django.utils.safestring import mark_safe
+
+#I'm sorry
+from exchange.pki.forms import ModifySSLConfigForm
+from exchange.pki.models import SslConfig, HostnamePortSslConfig
 
 from geonode.utils import get_bearer_token
 from geonode.security.views import _perms_info_json
@@ -285,6 +291,23 @@ def service_detail(request, service_id):
     except KeyError:
         pass
 
+    # context variables to render
+    ssl_descriptions = {}
+    for ssl_config in SslConfig.objects.default_and_all():
+        description = ssl_config.description or 'No description available.'
+        ssl_descriptions[ssl_config.pk] = description
+    ssl_descriptions = mark_safe(json.dumps(ssl_descriptions))
+
+    hostname_mappings = {}
+    for hnp_sslc in HostnamePortSslConfig.objects.all():
+        hostname_mappings[hnp_sslc.hostname_port] = hnp_sslc.ssl_config.pk
+    hostname_mappings = mark_safe(json.dumps(hostname_mappings))
+
+    if request.method == "POST":
+        form = ModifySSLConfigForm(request.POST, request=request, url=service.base_url)
+    else:
+        form = ModifySSLConfigForm(request=request, url=service.base_url)
+
     return render(
         request,
         template_name="services/service_detail.html",
@@ -297,6 +320,9 @@ def service_detail(request, service_id):
             "permissions_json": _perms_info_json(service),
             "resources": resources,
             "total_resources": len(all_resources),
+            "form": form,
+            "hostname_mappings": hostname_mappings,
+            "ssl_descriptions": ssl_descriptions
         }
     )
 
