@@ -64,14 +64,7 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
 
     service_type = enumerations.REST
 
-    def __init__(self, url, **kwargs):
-        headers = kwargs.pop('headers', None)
-        if headers:
-            auth_header = headers.get('Authorization', None)
-            if all([not url.startswith(settings.SITEURL), auth_header,
-                    'bearer' in auth_header.lower()]):
-                del headers['Authorization']
-
+    def __init__(self, url):
         self.parsed_service = ArcMapService(url)
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)

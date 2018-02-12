@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 @shared_task(bind=True)
-def harvest_resource(self, harvest_job_id, headers=None):
+def harvest_resource(self, harvest_job_id):
     harvest_job = models.HarvestJob.objects.get(pk=harvest_job_id)
     harvest_job.update_status(
         status=enumerations.IN_PROCESS, details="Harvesting resource...")
@@ -43,8 +43,7 @@ def harvest_resource(self, harvest_job_id, headers=None):
     try:
         handler = get_service_handler(
             base_url=harvest_job.service.base_url,
-            service_type=harvest_job.service.type,
-            headers=(headers or None)
+            service_type=harvest_job.service.type
         )
         with transaction.atomic():
             logger.debug("harvesting resource...")
