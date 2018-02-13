@@ -20,8 +20,12 @@
 """Utilities for enabling ESRI REST Mapserver remote services in geonode."""
 
 import logging
-from urlparse import urlsplit
 from uuid import uuid4
+
+try:
+    from urllib.parse import urlparse, urlunparse, parse_qsl
+except ImportError:
+    from urlparse import urlparse, urlunparse, parse_qsl
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -71,8 +75,38 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
             if all([not url.startswith(settings.SITEURL), auth_header,
                     'bearer' in auth_header.lower()]):
                 del headers['Authorization']
+        logger.debug('passed headers = {0}'.format(headers))
 
-        self.parsed_service = ArcMapService(url)
+        # Convert access token in URL to header
+        if 'access_token' in url.lower():
+            url_p = urlparse(url)
+            url_query = url_p.query.strip()
+
+            params = parse_qsl(url_query, keep_blank_values=True)
+            clean_params = []
+            token = None
+            for k, v in params:
+                if k.lower() != 'access_token':
+                    clean_params.append((k, v))
+                else:
+                    token = v
+            url_new_p = list(url_p)
+            new_query = ''
+            if clean_params:
+                # don't use urlencode, as Mapserver doesn't like it?
+                new_query = "&".join("{0}={1}".format(*kv)
+                                     for kv in clean_params)
+            url_new_p[4] = new_query
+            url = urlunparse(url_new_p)
+
+            if token is not None and 'Authorization' not in headers:
+                bearer_header = {'Authorization': "Bearer {0}".format(token)}
+                if headers and isinstance(headers, dict):
+                    headers.update(bearer_header)
+                else:
+                    headers = bearer_header
+
+        self.parsed_service = ArcMapService(url, add_headers=headers)
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         self.url = self.parsed_service.url
