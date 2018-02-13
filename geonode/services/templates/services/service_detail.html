@@ -158,9 +158,9 @@ Ext.onReady(function() {
             <li class="list-group-item"><a class="btn btn-default btn-md btn-block" href="{% url "edit_service" service.id %}">{% trans "Edit Service Metadata" %}</a></li>
             <li class="list-group-item"><a id="harvestResources" class="btn btn-default btn-md btn-block" href="{% url "harvest_resources" service.id %}">{% trans "Scan Service for Resources" %}</a></li>
             <!--
-                TODO:Enable SSL Config Modal
+                Update service disabled until services are updated
             -->
-            {% if "https" in service.base_url or SITEURL in service.base_url %}
+            {% if False %} <!--"https" in service.base_url or SITEURL in service.base_url %} -->
                 <li class="list-group-item"><a id="modifySSLConfig" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#modify-ssl-config">{% trans "Modify SSL Config" %}</a></li>
                 <div class="modal fade" id="modify-ssl-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                   <div class="modal-dialog">
@@ -220,7 +220,10 @@ Ext.onReady(function() {
             });
         });
     </script>
-    {% if "https" in service.base_url or SITEURL in service.base_url %}
+    <!--
+        Update service disabled until services are updated
+    -->
+    {% if False %} <!-- "https" in service.base_url or SITEURL in service.base_url %} -->
         <script type="text/javascript">
             $(document).ready(function () {
                 // begin helper functions
