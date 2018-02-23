@@ -18,7 +18,7 @@
 #
 #########################################################################
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from urlparse import urlsplit
 from django.conf import settings
 from django.utils.http import is_safe_url
@@ -44,6 +44,10 @@ def proxy(request):
                             )
 
     raw_url = request.GET['url']
+    # defer to pki proxy if it's in the url
+    if '/pki' in raw_url:
+        return HttpResponseRedirect(raw_url)
+
     url = urlsplit(raw_url)
     headers = {}
 
