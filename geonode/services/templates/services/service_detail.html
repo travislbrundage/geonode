@@ -39,17 +39,13 @@ Ext.onReady(function() {
 
 {% block body %}
 <div class="twocol">
-    <h3>{{service.title|default:service.name}}</h3>
-    <p><strong>{% trans "Name:" %}</strong> {{service.name}}</p>
-    <p><strong>{% trans "Type:" %}</strong> {{service.type}}</p>
-    {% if "https" in service.online_resource %}
-        <p><strong>{% trans "URL:" %}</strong> {{service.online_resource}}</p>
-    {% else %}
-        <p><strong>{% trans "URL:" %}</strong> {{service.base_url}}</p>
-    {% endif %}
-    <p><strong>{% trans "Abstract:" %}</strong> {{service.abstract}}</p>
-    <p><strong>{% trans "Keywords:" %}</strong> {{ service.keywords.all|join:", " }}</p>
-    <p><strong>{% trans "Contact:" %}</strong> <a href="{% url "profile_detail" service.owner.username %}">{{ service.owner }}</a></p>
+  <h3>{{service.title|default:service.name}}</h3>
+      <p><strong>{% trans "Name:" %}</strong> {{service.name}}</p>
+      <p><strong>{% trans "Type:" %}</strong> {{service.type}}</p>
+      <p><strong>{% trans "URL:" %}</strong> {{service.base_url}}</p>
+      <p><strong>{% trans "Abstract:" %}</strong> {{service.abstract}}</p>
+      <p><strong>{% trans "Keywords:" %}</strong> {{ service.keywords.all|join:", " }}</p>
+      <p><strong>{% trans "Contact:" %}</strong> <a href="{% url "profile_detail" service.owner.username %}">{{ service.owner }}</a></p>
 
 
     {% autoescape off %}
@@ -160,12 +156,6 @@ Ext.onReady(function() {
         {% if "change_service" in resource_perms %}
             <li class="list-group-item"><a class="btn btn-default btn-md btn-block" href="{% url "edit_service" service.id %}">{% trans "Edit Service Metadata" %}</a></li>
             <li class="list-group-item"><a id="harvestResources" class="btn btn-default btn-md btn-block" href="{% url "harvest_resources" service.id %}">{% trans "Scan Service for Resources" %}</a></li>
-            <!--
-                TODO:Enable SSL Config Modal
-            -->
-            {% if "https" in service.online_resource %}
-                <li class="list-group-item"><a id="modifySSLConfig" class="btn btn-default btn-md btn-block" data-toggle="modal" data-target="#modify-ssl-config">{% trans "Modify SSL Config" %}</a></li>
-            {% endif %}
         {% endif %}
         {% if  "remove_service" or "delete_service" in resource_perms %}
             <li class="list-group-item"><a class="btn btn-default btn-md btn-block" href="{% url "remove_service" service.id %}">{% trans "Remove Service" %}</a></li>
