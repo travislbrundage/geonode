@@ -360,13 +360,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     if settings.SOCIAL_ORIGINS:
         context_dict["social_links"] = build_social_links(request, layer)
 
-    context_proxy = settings.PROXY_URL
-    # Don't double proxy if we are utilizing the internal pki proxy
-    if '/pki' in layer.ows_url:
-        context_proxy = ''
-    rc = RequestContext(request, context_dict)
-    rc.push({"PROXY_URL": context_proxy})
-    return render_to_response(template, rc)
+    return render_to_response(template, RequestContext(request, context_dict))
 
 
 def layer_feature_catalogue(request, layername, template='../../catalogue/templates/catalogue/feature_catalogue.xml'):
