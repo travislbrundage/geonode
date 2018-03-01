@@ -332,8 +332,8 @@ class GXPMapBase(object):
             }
         }
 
-        if access_token:
-            config['access_token'] = access_token
+        #if access_token:
+        #    config['access_token'] = access_token
 
         if any(layers):
             # Mark the last added layer as selected - important for data page

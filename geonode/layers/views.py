@@ -245,11 +245,16 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if layer.storeType == "remoteStore":
         service = layer.service
+
+        def mock_lookup(url):
+            return True
+
         source_params = {
             "ptype": service.ptype,
             "remote": True,
             "url": service.base_url,
-            "name": service.name}
+            "name": service.name,
+            "use_proxy": mock_lookup(service.base_url)}
         maplayer = GXPLayer(
             name=layer.typename,
             ows_url=layer.ows_url,
