@@ -243,13 +243,18 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
     if layer.default_style:
         config["styles"] = layer.default_style.name
 
+    # TODO: Replace with actual cache lookup
+    def ssl_cache_check(url):
+        return True
+
     if layer.storeType == "remoteStore":
         service = layer.service
         source_params = {
             "ptype": service.ptype,
             "remote": True,
             "url": service.base_url,
-            "name": service.name}
+            "name": service.name,
+            "use_proxy": ssl_cache_check(service.base_url)}
         maplayer = GXPLayer(
             name=layer.typename,
             ows_url=layer.ows_url,

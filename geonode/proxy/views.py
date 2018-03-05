@@ -18,7 +18,7 @@
 #
 #########################################################################
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from urlparse import urlsplit
 from django.conf import settings
 from django.utils.http import is_safe_url
@@ -46,6 +46,17 @@ def proxy(request):
     raw_url = request.GET['url']
     url = urlsplit(raw_url)
     headers = {}
+
+    if 'exchange.pki' in settings.INSTALLED_APPS:
+        from exchange.pki.utils import pki_route
+        # If we find the url in our ssl cache, proxy it through our pki proxy
+        # TODO: Replace with actual cache lookup
+        def ssl_cache_check(url):
+            return True
+
+        if ssl_cache_check(raw_url):
+            # modify url to be pki proxy url & redirect to it
+            return HttpResponseRedirect(pki_route(raw_url))
 
     if not settings.DEBUG:
         if not validate_host(url.hostname, PROXY_ALLOWED_HOSTS):

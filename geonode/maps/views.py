@@ -616,6 +616,11 @@ def new_map_config(request):
                         url = service.base_url+'?access_token='+access_token
                     else:
                         url = service.base_url
+
+                    # TODO: Replace with actual cache lookup
+                    def ssl_cache_check(url):
+                        return True
+
                     maplayer = MapLayer(map=map_obj,
                                         name=layer.typename,
                                         ows_url=layer.ows_url,
@@ -625,7 +630,8 @@ def new_map_config(request):
                                             "ptype": service.ptype,
                                             "remote": True,
                                             "url": url,
-                                            "name": service.name}))
+                                            "name": service.name,
+                                            "use_proxy": ssl_cache_check(url)}))
                 else:
                     ogc_server_url = urlparse.urlsplit(ogc_server_settings.PUBLIC_LOCATION).netloc
                     layer_url = urlparse.urlsplit(layer.ows_url).netloc
