@@ -66,6 +66,7 @@ from geonode.documents.models import get_related_documents
 from geonode.utils import build_social_links
 from geonode.geoserver.helpers import cascading_delete, gs_catalog
 from geonode.geoserver.helpers import ogc_server_settings
+import urlparse
 
 if 'geonode.geoserver' in settings.INSTALLED_APPS:
     from geonode.geoserver.helpers import _render_thumbnail
@@ -250,13 +251,23 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if layer.storeType == "remoteStore":
         service = layer.service
+        source_url = service.base_url
         use_proxy = (callable(has_ssl_config) and has_ssl_config(service.base_url))
+        components = urlparse.urlsplit(service.base_url)
+        query_params = None
+        if components.query:
+            query_params = dict(urlparse.parse_qsl(components.query))
+            removed_query = [components.scheme, components.netloc, components.path,
+                             None, components.fragment]
+            source_url = urlparse.urlunsplit(removed_query)
         source_params = {
             "ptype": service.ptype,
             "remote": True,
-            "url": service.base_url,
+            "url": source_url,
             "name": service.name,
             "use_proxy": use_proxy}
+        if query_params is not None:
+            source_params["params"] = query_params
         maplayer = GXPLayer(
             name=layer.typename,
             ows_url=layer.ows_url,
