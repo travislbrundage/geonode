@@ -20,10 +20,21 @@
 
 from django.http import HttpResponse
 from urlparse import urlsplit
+from urllib import quote, unquote
 from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http.request import validate_host
 import requests
+import logging
+
+try:
+    from exchange.pki.models import has_ssl_config
+    from exchange.pki.views import pki_request
+except ImportError:
+    has_ssl_config = None
+    pki_request = None
+
+logger = logging.getLogger(__name__)
 
 
 def proxy(request):
@@ -54,6 +65,12 @@ def proxy(request):
                                 status=403,
                                 content_type="text/plain"
                                 )
+
+    if raw_url.startswith('https') \
+            and callable(has_ssl_config) and has_ssl_config(unquote(raw_url)):
+        resource_url = quote(unquote(raw_url).replace('https://', ''))
+        logger.debug("Routing through pki proxy: {0}".format(resource_url))
+        return pki_request(request, resource_url)
 
     if settings.SESSION_COOKIE_NAME in request.COOKIES and is_safe_url(url=raw_url, host=host):
         headers["Cookie"] = request.META["HTTP_COOKIE"]
