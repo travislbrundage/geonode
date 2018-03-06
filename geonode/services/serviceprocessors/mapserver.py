@@ -42,6 +42,12 @@ from .. import models
 
 from . import base
 
+try:
+    from exchange.pki.utils import pki_prefix, pki_route_reverse
+except ImportError:
+    pki_prefix = None
+    pki_route_reverse = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -70,46 +76,14 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
 
     def __init__(self, url, **kwargs):
         headers = kwargs.pop('headers', None)
-        if headers:
-            auth_header = headers.get('Authorization', None)
-            if all([not url.startswith(settings.SITEURL), auth_header,
-                    'bearer' in auth_header.lower()]):
-                del headers['Authorization']
         logger.debug('passed headers = {0}'.format(headers))
-
-        # Convert access token in URL to header
-        if 'access_token' in url.lower():
-            url_p = urlparse(url)
-            url_query = url_p.query.strip()
-
-            params = parse_qsl(url_query, keep_blank_values=True)
-            clean_params = []
-            token = None
-            for k, v in params:
-                if k.lower() != 'access_token':
-                    clean_params.append((k, v))
-                else:
-                    token = v
-            url_new_p = list(url_p)
-            new_query = ''
-            if clean_params:
-                # don't use urlencode, as Mapserver doesn't like it?
-                new_query = "&".join("{0}={1}".format(*kv)
-                                     for kv in clean_params)
-            url_new_p[4] = new_query
-            url = urlunparse(url_new_p)
-
-            if token is not None and 'Authorization' not in headers:
-                bearer_header = {'Authorization': "Bearer {0}".format(token)}
-                if headers and isinstance(headers, dict):
-                    headers.update(bearer_header)
-                else:
-                    headers = bearer_header
 
         self.parsed_service = ArcMapService(url, add_headers=headers)
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         self.url = self.parsed_service.url
+        if pki_prefix is not None and self.url.startswith(pki_prefix()):
+            self.url = pki_route_reverse(self.url)
         self.title = self.parsed_service.itemInfo['title']
         self.name = _get_valid_name(self.parsed_service.itemInfo['name'])
 

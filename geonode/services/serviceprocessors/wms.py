@@ -31,6 +31,12 @@ from geonode.layers.models import Layer
 from geonode.layers.utils import create_thumbnail
 from owslib.wms import WebMapService
 
+try:
+    from exchange.pki.utils import pki_prefix, pki_route_reverse
+except ImportError:
+    pki_prefix = None
+    pki_route_reverse = None
+
 from .. import enumerations
 from ..enumerations import CASCADED
 from ..enumerations import INDEXED
@@ -49,16 +55,14 @@ class WmsServiceHandler(base.ServiceHandlerBase,
 
     def __init__(self, url, **kwargs):
         headers = kwargs.pop('headers', None)
-        if headers:
-            auth_header = headers.get('Authorization', None)
-            if all([not url.startswith(settings.SITEURL), auth_header,
-                    'bearer' in auth_header.lower()]):
-                del headers['Authorization']
+        logger.debug('passed headers = {0}'.format(headers))
 
         self.parsed_service = WebMapService(url, headers=headers)
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         self.url = self.parsed_service.url
+        if pki_prefix is not None and self.url.startswith(pki_prefix()):
+            self.url = pki_route_reverse(self.url)
         _title = self.parsed_service.identification.title or ''
         _domain = urlsplit(self.url).netloc.split('.')[0]
         self.name = _get_valid_name(_domain + _title)

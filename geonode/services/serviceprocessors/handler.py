@@ -22,10 +22,18 @@
 import logging
 
 from django.utils.datastructures import OrderedDict
+from geonode.utils import get_bearer_token
 
 from .. import enumerations
 from .wms import WmsServiceHandler
 from .mapserver import MapserverServiceHandler
+
+try:
+    from exchange.pki.models import has_ssl_config
+    from exchange.pki.utils import pki_route
+except ImportError:
+    has_ssl_config = None
+    pki_route = None
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +73,22 @@ def get_service_handler(base_url, service_type=enumerations.AUTO, headers=None):
                                "available service handlers".format(base_url))
     else:
         handler = handlers.get(service_type, {}).get("handler")
+
+        if callable(has_ssl_config) \
+                and has_ssl_config(base_url, via_query=True):
+            # has_ssl_config needs to query db, as call may be from task
+            # worker, whose hostnameport_pattern_cache may be out of sync
+            base_url = pki_route(base_url)
+            logger.debug('Rewritten URL for pki proxy: {0}'.format(base_url))
+
+            bearer_header = {'Authorization': "Bearer {0}".format(
+                get_bearer_token(valid_time=30))}
+            logger.debug('Add bearer_header: {0}'.format(repr(bearer_header)))
+            if headers and isinstance(headers, dict):
+                headers.update(bearer_header)
+            else:
+                headers = bearer_header
+
         try:
             service = handler(base_url, headers=headers)
         except Exception:
