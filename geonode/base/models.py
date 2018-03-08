@@ -477,7 +477,7 @@ class ResourceBase(PolymorphicModel, PermissionLevelMixin, ItemBase):
     temporal_extent_end = models.DateTimeField(_('temporal extent end'), blank=True, null=True,
                                                help_text=temporal_extent_end_help_text)
 
-    supplemental_information = models.TextField(_('supplemental information'), max_length=2000, default=DEFAULT_SUPPLEMENTAL_INFORMATION,
+    supplemental_information = models.TextField(_('supplemental information'), max_length=2000, default='', blank=True,
                                                 help_text=_('any other descriptive information about the dataset'))
 
     # Section 8
