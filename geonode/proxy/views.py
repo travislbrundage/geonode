@@ -19,11 +19,12 @@
 #########################################################################
 
 from django.http import HttpResponse
-from urlparse import urlsplit
-from urllib import quote, unquote
+from urlparse import urlsplit, parse_qsl, urlunsplit
+from urllib import quote
 from django.conf import settings
 from django.utils.http import is_safe_url
 from django.http.request import validate_host
+from django.core.urlresolvers import reverse, resolve
 import requests
 import logging
 
@@ -66,11 +67,46 @@ def proxy(request):
                                 content_type="text/plain"
                                 )
 
-    if raw_url.startswith('https') \
-            and callable(has_ssl_config) and has_ssl_config(unquote(raw_url)):
-        resource_url = quote(unquote(raw_url).replace('https://', ''))
+    if url.scheme.lower() == 'https' \
+            and callable(has_ssl_config) and has_ssl_config(url.geturl()):
+        # Adjust request to mock call to pki_request view
+        # Merge queries
+        pki_req_query = request.GET.copy()
+        """django.http.QueryDict"""
+        # Strip the url param from request query
+        del pki_req_query['url']
+        # Note: leave other query pairs passed to this view, e.g. access_token
+
+        # Add any query from passed url param's URL
+        url_query = url.query.strip()
+        for k, v in parse_qsl(url_query, keep_blank_values=True):
+            pki_req_query.appendlist(k, v)
+        request.GET = pki_req_query
+        request.META["QUERY_STRING"] = pki_req_query.urlencode()
+
+        # pki_request view is restricted to local calls
+        request.META["REMOTE_ADDR"] = '127.0.0.1'
+        request.META["REMOTE_HOST"] = 'localhost'
+        # TODO: Update HTTP_X_FORWARDED_FOR? See: api.views.get_client_ip()
+
+        base_url = urlunsplit((None, url.netloc, url.path, None, None))\
+            .replace('//', '', 1)
+        # For pki_request view, resource_url has no URL scheme
+        resource_url = quote(base_url)
+
+        pki_path = reverse('pki_request',
+                           kwargs={'resource_url': resource_url})
+        # Reset view paths attributes
+        request.path = request.path_info = pki_path
+        request.META["PATH_INFO"] = pki_path
+        request.resolver_match = resolve(pki_path)
+
+        logger.debug("pki_req QueryDict: {0}".format(pki_req_query))
+        # logger.debug("pki_req META: {0}".format(request.META))
+        logger.debug("pki_req META['QUERY_STRING']: {0}"
+                     .format(request.META["QUERY_STRING"]))
         logger.debug("Routing through pki proxy: {0}".format(resource_url))
-        return pki_request(request, resource_url)
+        return pki_request(request, resource_url=resource_url)
 
     if settings.SESSION_COOKIE_NAME in request.COOKIES and is_safe_url(url=raw_url, host=host):
         headers["Cookie"] = request.META["HTTP_COOKIE"]
