@@ -43,9 +43,14 @@ from .. import models
 from . import base
 
 try:
-    from exchange.pki.utils import pki_prefix, pki_route_reverse
+    from exchange.pki.utils import (
+        pki_prefix,
+        pki_site_prefix,
+        pki_route_reverse
+    )
 except ImportError:
     pki_prefix = None
+    pki_site_prefix = None
     pki_route_reverse = None
 
 logger = logging.getLogger(__name__)
@@ -82,7 +87,10 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         self.url = self.parsed_service.url
+        self.pki_site_url = None
         if pki_prefix is not None and self.url.startswith(pki_prefix()):
+            self.pki_site_url = self.url.replace(
+                pki_prefix(), pki_site_prefix(), 1)
             self.url = pki_route_reverse(self.url)
         self.title = self.parsed_service.itemInfo['title']
         self.name = _get_valid_name(self.parsed_service.itemInfo['name'])
@@ -233,7 +241,7 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
 
         """
 
-        legend_url = "{}/legend?f=pjson".format(self.url)
+        legend_url = "{}/legend?f=pjson".format(self.pki_site_url or self.url)
         logger.debug("legend_url: {}".format(legend_url))
         Link.objects.get_or_create(
             resource=geonode_layer.resourcebase_ptr,
