@@ -256,7 +256,9 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         components = urlparse.urlsplit(service.base_url)
         query_params = None
         if components.query:
-            query_params = dict(urlparse.parse_qsl(components.query))
+            # Reforming the query parameters in this manner may not properly
+            # preserve their ordering - may need to manually construct them ordered
+            query_params = dict(urlparse.parse_qsl(components.query, keep_blank_values=True))
             removed_query = [components.scheme, components.netloc, components.path,
                              None, components.fragment]
             source_url = urlparse.urlunsplit(removed_query)
