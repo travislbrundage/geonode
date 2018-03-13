@@ -249,7 +249,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
             "ptype": service.ptype,
             "remote": True,
             "url": service.base_url,
-            "name": service.name}
+            "name": service.name,
+            "use_proxy": True}
         maplayer = GXPLayer(
             name=layer.typename,
             ows_url=layer.ows_url,

@@ -625,7 +625,8 @@ def new_map_config(request):
                                             "ptype": service.ptype,
                                             "remote": True,
                                             "url": url,
-                                            "name": service.name}))
+                                            "name": service.name,
+                                            "use_proxy": True}))
                 else:
                     ogc_server_url = urlparse.urlsplit(ogc_server_settings.PUBLIC_LOCATION).netloc
                     layer_url = urlparse.urlsplit(layer.ows_url).netloc
