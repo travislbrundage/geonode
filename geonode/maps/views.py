@@ -75,6 +75,11 @@ if 'geonode.geoserver' in settings.INSTALLED_APPS:
 else:
     from geonode.utils import http_client
 
+try:
+    from exchange.pki.models import has_ssl_config
+except ImportError:
+    has_ssl_config = None
+
 logger = logging.getLogger("geonode.maps.views")
 
 DEFAULT_MAPS_SEARCH_BATCH_SIZE = 10
@@ -616,6 +621,7 @@ def new_map_config(request):
                         url = service.base_url+'?access_token='+access_token
                     else:
                         url = service.base_url
+                    use_proxy = (callable(has_ssl_config) and has_ssl_config(service.base_url))
                     maplayer = MapLayer(map=map_obj,
                                         name=layer.typename,
                                         ows_url=layer.ows_url,
@@ -625,7 +631,8 @@ def new_map_config(request):
                                             "ptype": service.ptype,
                                             "remote": True,
                                             "url": url,
-                                            "name": service.name}))
+                                            "name": service.name,
+                                            "use_proxy": use_proxy}))
                 else:
                     ogc_server_url = urlparse.urlsplit(ogc_server_settings.PUBLIC_LOCATION).netloc
                     layer_url = urlparse.urlsplit(layer.ows_url).netloc

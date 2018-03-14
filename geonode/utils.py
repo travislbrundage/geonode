@@ -482,6 +482,8 @@ def default_map_config(request):
     )
 
     def _baselayer(lyr, order):
+        if settings.PROXY_BASEMAP is True:
+            lyr["source"]["use_proxy"] = True
         return layer_from_viewer_config(
             GXPLayer,
             layer=lyr,
