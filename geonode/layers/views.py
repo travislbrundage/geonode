@@ -26,6 +26,7 @@ import traceback
 from base64 import b64decode
 import uuid
 import decimal
+from collections import OrderedDict
 
 from guardian.shortcuts import get_perms
 from django.contrib import messages
@@ -256,9 +257,7 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         components = urlparse.urlsplit(service.base_url)
         query_params = None
         if components.query:
-            # Reforming the query parameters in this manner may not properly
-            # preserve their ordering - may need to manually construct them ordered
-            query_params = dict(urlparse.parse_qsl(components.query, keep_blank_values=True))
+            query_params = OrderedDict(urlparse.parse_qsl(components.query, keep_blank_values=True))
             removed_query = [components.scheme, components.netloc, components.path,
                              None, components.fragment]
             source_url = urlparse.urlunsplit(removed_query)
