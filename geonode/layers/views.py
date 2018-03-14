@@ -71,6 +71,11 @@ if 'geonode.geoserver' in settings.INSTALLED_APPS:
     from geonode.geoserver.helpers import _render_thumbnail
 CONTEXT_LOG_FILE = ogc_server_settings.LOG_FILE
 
+try:
+    from exchange.pki.models import has_ssl_config
+except ImportError:
+    has_ssl_config = None
+
 logger = logging.getLogger("geonode.layers.views")
 
 DEFAULT_SEARCH_BATCH_SIZE = 10
@@ -245,11 +250,13 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
 
     if layer.storeType == "remoteStore":
         service = layer.service
+        use_proxy = (callable(has_ssl_config) and has_ssl_config(service.base_url))
         source_params = {
             "ptype": service.ptype,
             "remote": True,
             "url": service.base_url,
-            "name": service.name}
+            "name": service.name,
+            "use_proxy": use_proxy}
         maplayer = GXPLayer(
             name=layer.typename,
             ows_url=layer.ows_url,
