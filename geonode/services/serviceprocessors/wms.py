@@ -34,12 +34,12 @@ from owslib.wms import WebMapService
 try:
     from exchange.pki.utils import (
         pki_prefix,
-        pki_site_prefix,
+        pki_to_proxy_route,
         pki_route_reverse
     )
 except ImportError:
     pki_prefix = None
-    pki_site_prefix = None
+    pki_to_proxy_route = None
     pki_route_reverse = None
 
 from .. import enumerations
@@ -66,10 +66,9 @@ class WmsServiceHandler(base.ServiceHandlerBase,
         self.indexing_method = (
             INDEXED if self._offers_geonode_projection() else CASCADED)
         self.url = self.parsed_service.url
-        self.pki_site_url = None
+        self.pki_proxy_url = None
         if pki_prefix is not None and self.url.startswith(pki_prefix()):
-            self.pki_site_url = self.url.replace(
-                pki_prefix(), pki_site_prefix(), 1)
+            self.pki_proxy_url = pki_to_proxy_route(self.url)
             self.url = pki_route_reverse(self.url)
         _title = self.parsed_service.identification.title or ''
         _domain = urlsplit(self.url).netloc.split('.')[0]
@@ -227,7 +226,7 @@ class WmsServiceHandler(base.ServiceHandlerBase,
                 "fontAntiAliasing:true;fontSize:12;forceLabels:on")
         }
         kvp = "&".join("{}={}".format(*item) for item in params.items())
-        legend_url = "{}?{}".format(self.pki_site_url or self.url, kvp)
+        legend_url = "{}?{}".format(self.pki_proxy_url or self.url, kvp)
         logger.debug("legend_url: {}".format(legend_url))
         Link.objects.get_or_create(
             resource=geonode_layer.resourcebase_ptr,
