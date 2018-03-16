@@ -777,6 +777,11 @@ def get_layer(request, layername):
         if temporal_extent_end is not None:
             temporal_extent_end = layer_obj.temporal_extent_end.isoformat()
 
+        permissions = { 'edit_style': False}
+
+        if request.user.has_perm('change_layer_style', obj=layer_obj):
+            permissions.update({'edit_style': True})     
+            
         response = {
             'typename': layername,
             'name': layer_obj.name,
@@ -793,6 +798,7 @@ def get_layer(request, layername):
             'bbox_y1': layer_obj.bbox_y1,
             'type': slugify(layer_obj.display_type),
             'styles': styles,
+            'permissions': permissions,
             'maps': maps,
             'versioned': layer_obj.geogig_enabled,
             'attributes': attributes_as_json(layer_obj),
