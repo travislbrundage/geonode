@@ -477,8 +477,10 @@ def layer_metadata(request, layername, template='layers/layer_metadata.html'):
             if author_form.has_changed and author_form.is_valid():
                 new_author = author_form.save()
 
-        new_category = TopicCategory.objects.get(
-            id=category_form.cleaned_data['category_choice_field'])
+        category_id = category_form.cleaned_data.get('category_choice_field', None)
+        new_category = None
+        if category_id is not None:
+            new_category = TopicCategory.objects.get(id=category_id)
 
         for form in attribute_form.cleaned_data:
             la = Attribute.objects.get(id=int(form['id'].id))

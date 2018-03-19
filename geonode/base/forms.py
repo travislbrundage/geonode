@@ -69,11 +69,11 @@ class CategoryForm(forms.Form):
 
     def clean(self):
         cleaned_data = self.data
-        ccf_data = cleaned_data.get("category_choice_field")
+        ccf_data = cleaned_data.get("category_choice_field", None)
 
-        if not ccf_data:
-            msg = _("Category is required.")
-            self._errors = self.error_class([msg])
+        # if not ccf_data:
+        #    msg = _("Category is required.")
+        #    self._errors = self.error_class([msg])
 
         # Always return the full collection of cleaned data.
         return cleaned_data
