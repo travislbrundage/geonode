@@ -20,6 +20,7 @@
 """Utilities for enabling OGC WMS remote services in geonode."""
 
 import logging
+from urllib import quote
 from urlparse import urlsplit
 from uuid import uuid4
 
@@ -35,12 +36,14 @@ try:
     from exchange.pki.utils import (
         has_pki_prefix,
         pki_to_proxy_route,
-        pki_route_reverse
+        pki_route_reverse,
+        proxy_route
     )
 except ImportError:
     has_pki_prefix = None
     pki_to_proxy_route = None
     pki_route_reverse = None
+    proxy_route = None
 
 from .. import enumerations
 from ..enumerations import CASCADED
@@ -229,8 +232,13 @@ class WmsServiceHandler(base.ServiceHandlerBase,
             "legend_options": (
                 "fontAntiAliasing:true;fontSize:12;forceLabels:on")
         }
+        if self.pki_url is not None:
+            # ArcREST WMS request parser doesn't cope with : or ;
+            params["legend_options"] = quote(params["legend_options"])
         kvp = "&".join("{}={}".format(*item) for item in params.items())
-        legend_url = "{}?{}".format(self.pki_proxy_url or self.url, kvp)
+        legend_url = "{}?{}".format(self.url, kvp)
+        if self.pki_url is not None:
+            legend_url = proxy_route(legend_url)
         logger.debug("legend_url: {}".format(legend_url))
         Link.objects.get_or_create(
             resource=geonode_layer.resourcebase_ptr,
