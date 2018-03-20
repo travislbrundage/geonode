@@ -56,6 +56,11 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
+try:
+    from exchange.pki.models import requires_ssl_proxy
+except ImportError:
+    requires_ssl_proxy = None
+
 DEFAULT_TITLE = ""
 DEFAULT_ABSTRACT = ""
 
@@ -482,7 +487,12 @@ def default_map_config(request):
     )
 
     def _baselayer(lyr, order):
-        if settings.PROXY_BASEMAP is True:
+        # Only proxy the basemap if an ssl proxy exists for its url
+        # and the settings indicate to proxy it
+        if callable(requires_ssl_proxy) and \
+                "url" in lyr["source"] and \
+                requires_ssl_proxy(lyr["source"]["url"]) and \
+                settings.PROXY_BASEMAP is True:
             lyr["source"]["use_proxy"] = True
         return layer_from_viewer_config(
             GXPLayer,
