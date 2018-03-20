@@ -74,8 +74,9 @@ def get_service_handler(base_url, service_type=enumerations.AUTO, headers=None):
     else:
         handler = handlers.get(service_type, {}).get("handler")
 
-        if callable(has_ssl_config) \
-                and has_ssl_config(base_url, via_query=True):
+        if (base_url.lower().startswith('https')
+                and (callable(has_ssl_config)
+                     and has_ssl_config(base_url, via_query=True))):
             # has_ssl_config needs to query db, as call may be from task
             # worker, whose hostnameport_pattern_cache may be out of sync
             base_url = pki_route(base_url)
