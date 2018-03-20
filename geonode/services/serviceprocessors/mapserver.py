@@ -42,12 +42,14 @@ try:
     from exchange.pki.utils import (
         has_pki_prefix,
         pki_to_proxy_route,
-        pki_route_reverse
+        pki_route_reverse,
+        proxy_route
     )
 except ImportError:
     has_pki_prefix = None
     pki_to_proxy_route = None
     pki_route_reverse = None
+    proxy_route = None
 
 logger = logging.getLogger(__name__)
 
@@ -241,7 +243,10 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
 
         """
 
-        legend_url = "{}/legend?f=pjson".format(self.pki_proxy_url or self.url)
+        legend_url = "{}/legend?f=pjson".format(self.url)
+        if self.pki_url is not None:
+            legend_url = proxy_route(legend_url)
+
         logger.debug("legend_url: {}".format(legend_url))
         Link.objects.get_or_create(
             resource=geonode_layer.resourcebase_ptr,
