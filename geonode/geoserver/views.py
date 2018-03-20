@@ -36,6 +36,7 @@ from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 
 from guardian.shortcuts import get_objects_for_user
 
@@ -323,7 +324,7 @@ def style_change_check(request, path):
                     'There is not a style with such a name: %s.' % style_name)
     return authorized
 
-
+@csrf_exempt
 def geoserver_rest_proxy(request, proxy_path, downstream_path):
 
     if not request.user.is_authenticated():
@@ -347,7 +348,7 @@ def geoserver_rest_proxy(request, proxy_path, downstream_path):
 
     affected_layers = None
 
-    if request.method in ("POST", "PUT") and "CONTENT_TYPE" in request.META:
+    if request.method in ("POST", "GET", "PUT") and "CONTENT_TYPE" in request.META:
         headers["Content-Type"] = request.META["CONTENT_TYPE"]
         headers["Authorization"] = "Basic " + auth
         # if user is not authorized, we must stop him

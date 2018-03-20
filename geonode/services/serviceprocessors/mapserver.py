@@ -332,6 +332,7 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
             "bbox_x1": bbox['xmax'],
             "bbox_y0": bbox['ymin'],
             "bbox_y1": bbox['ymax'],
+            "srid": "EPSG:%s" % bbox['spatialReference']['latestWkid'],
             "keywords": self.get_keywords(),
         }
 
