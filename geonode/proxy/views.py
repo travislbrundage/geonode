@@ -60,12 +60,16 @@ def proxy(request):
     headers = {}
 
     if not settings.DEBUG:
-        if not validate_host(url.hostname, PROXY_ALLOWED_HOSTS):
-            return HttpResponse("DEBUG is set to False but the host of the path provided to the proxy service"
-                                " is not in the PROXY_ALLOWED_HOSTS setting.",
-                                status=403,
-                                content_type="text/plain"
-                                )
+        if not (validate_host(url.hostname, PROXY_ALLOWED_HOSTS)
+                or (callable(has_ssl_config)
+                    and has_ssl_config(url.geturl()))):
+            return HttpResponse(
+                "DEBUG is set to False but the host of the path provided to "
+                "the proxy service is not in the PROXY_ALLOWED_HOSTS setting "
+                "or defined to use the proxy in SSL/PKI configurations.",
+                status=403,
+                content_type="text/plain"
+            )
 
     if url.scheme.lower() == 'https' \
             and callable(has_ssl_config) and has_ssl_config(url.geturl()):

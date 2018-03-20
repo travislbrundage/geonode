@@ -76,9 +76,9 @@ else:
     from geonode.utils import http_client
 
 try:
-    from exchange.pki.models import requires_ssl_proxy
+    from exchange.pki.models import uses_proxy_route
 except ImportError:
-    requires_ssl_proxy = None
+    uses_proxy_route = None
 
 logger = logging.getLogger("geonode.maps.views")
 
@@ -621,8 +621,8 @@ def new_map_config(request):
                         url = service.base_url+'?access_token='+access_token
                     else:
                         url = service.base_url
-                    use_proxy = (callable(requires_ssl_proxy)
-                                 and requires_ssl_proxy(service.base_url))
+                    use_proxy = (callable(uses_proxy_route)
+                                 and uses_proxy_route(service.base_url))
                     maplayer = MapLayer(map=map_obj,
                                         name=layer.typename,
                                         ows_url=layer.ows_url,
