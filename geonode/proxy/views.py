@@ -72,7 +72,8 @@ def proxy(request):
             # Fix up any '//' protocol relative URLs coming from JS map viewers
             # Use request.scheme to reference origin scheme context
             # Note: Can't use request.build_absolute_uri(raw_url) for this
-            raw_url = protocol_relative_to_scheme(url, scheme=request.scheme)
+            raw_url = protocol_relative_to_scheme(url.geturl(),
+                                                  scheme=request.scheme)
             # logger.debug("protocol_relative_to_scheme = ".format(raw_url))
         else:
             raw_url = request.build_absolute_uri(raw_url)
