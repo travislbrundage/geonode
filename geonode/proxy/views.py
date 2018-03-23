@@ -31,9 +31,15 @@ import logging
 try:
     from exchange.pki.models import has_ssl_config
     from exchange.pki.views import pki_request
+    from exchange.pki.utils import (
+        protocol_relative_url,
+        protocol_relative_to_scheme,
+    )
 except ImportError:
     has_ssl_config = None
     pki_request = None
+    protocol_relative_url = None
+    protocol_relative_to_scheme = None
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +64,20 @@ def proxy(request):
     raw_url = request.GET['url']
     url = urlsplit(raw_url)
     headers = {}
+
+    # Fix up any possible non-absolute URLs that have no scheme, or even domain
+    if ((callable(protocol_relative_url) and protocol_relative_url(raw_url))
+            or not url.scheme):
+        if url.netloc and callable(protocol_relative_to_scheme):
+            # Fix up any '//' protocol relative URLs coming from JS map viewers
+            # Use request.scheme to reference origin scheme context
+            # Note: Can't use request.build_absolute_uri(raw_url) for this
+            raw_url = protocol_relative_to_scheme(url, scheme=request.scheme)
+            # logger.debug("protocol_relative_to_scheme = ".format(raw_url))
+        else:
+            raw_url = request.build_absolute_uri(raw_url)
+            # logger.debug("build_absolute_uri = ".format(raw_url))
+        url = urlsplit(raw_url)
 
     if not settings.DEBUG:
         if not (validate_host(url.hostname, PROXY_ALLOWED_HOSTS)
