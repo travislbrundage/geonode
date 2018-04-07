@@ -626,7 +626,7 @@ def new_map_config(request):
                     maplayer = MapLayer(map=map_obj,
                                         name=layer.typename,
                                         ows_url=layer.ows_url,
-                                        layer_params=json.dumps(config),
+                                        layer_params=json.dumps(config, cls=DjangoJSONEncoder),
                                         visibility=True,
                                         source_params=json.dumps({
                                             "ptype": service.ptype,
