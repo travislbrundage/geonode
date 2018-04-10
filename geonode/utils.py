@@ -492,7 +492,7 @@ def default_map_config(request):
         if ((callable(uses_proxy_route)
              and "url" in lyr["source"]
              and uses_proxy_route(lyr["source"]["url"]))
-                or settings.PROXY_BASEMAP is True):
+                and settings.PROXY_BASEMAP is True):
             lyr["source"]["use_proxy"] = True
         return layer_from_viewer_config(
             GXPLayer,
