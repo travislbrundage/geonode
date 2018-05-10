@@ -104,14 +104,16 @@ class CreateServiceForm(forms.Form):
         """Validates the pki protected url and its associated certificates"""
         ssl_config = ssl_config_for_url(url)
         try:
+            if ssl_config is None:
+                # Should have an SslConfig, but this could happen
+                raise ValidationError
             ssl_config.clean()
-        except ValidationError as e:
+        except ValidationError:
             raise ValidationError(
-                _("Error with SSL Config %(ssl)s: %(error)s. \
-                    Please contact your Exchange Administrator."),
+                _("Error with SSL or PKI configuration for url: %(url)s. "
+                  "Please contact your Exchange Administrator."),
                 params={
-                    "ssl": ssl_config.name,
-                    "error": e
+                    "url": url,
                 }
             )
 
