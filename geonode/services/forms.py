@@ -32,6 +32,13 @@ from .serviceprocessors import get_service_handler
 from geonode.base.models import TopicCategory, License
 from geonode.base.enumerations import UPDATE_FREQUENCIES
 from django.conf import settings
+try:
+    from exchange.pki.models import (
+        has_ssl_config,
+        ssl_config_for_url
+    )
+except ImportError:
+    has_ssl_config = None
 
 logger = logging.getLogger(__name__)
 
@@ -91,12 +98,30 @@ class CreateServiceForm(forms.Form):
             )
         return proposed_url
 
+    def validate_pki_url(self, url):
+        """Validates the pki protected url and its associated certificates"""
+        ssl_config = ssl_config_for_url(url)
+        try:
+            ssl_config.clean()
+        except ValidationError as e:
+            raise ValidationError(
+                _("Error with SSL Config %(ssl)s: %(error)s. \
+                    Please contact your Exchange Administrator."),
+                params={
+                    "ssl": ssl_config.name,
+                    "error": e
+                }
+            )
+
     def clean(self):
         """Validates form fields that depend on each other"""
         super(CreateServiceForm, self).clean()
         url = self.cleaned_data.get("url")
         service_type = self.cleaned_data.get("type")
         if url is not None and service_type is not None:
+            # Check pki validation
+            if callable(has_ssl_config) and has_ssl_config(url):
+                validate_pki_url(url)
             try:
                 service_handler = get_service_handler(
                     base_url=url, service_type=service_type)
