@@ -39,6 +39,7 @@ try:
     )
 except ImportError:
     has_ssl_config = None
+    ssl_config_for_url = None
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,8 @@ class CreateServiceForm(forms.Form):
             )
         return proposed_url
 
-    def validate_pki_url(self, url):
+    @staticmethod
+    def validate_pki_url(url):
         """Validates the pki protected url and its associated certificates"""
         ssl_config = ssl_config_for_url(url)
         try:
@@ -121,7 +123,7 @@ class CreateServiceForm(forms.Form):
         if url is not None and service_type is not None:
             # Check pki validation
             if callable(has_ssl_config) and has_ssl_config(url):
-                validate_pki_url(url)
+                self.validate_pki_url(url)
             try:
                 service_handler = get_service_handler(
                     base_url=url, service_type=service_type)
