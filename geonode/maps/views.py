@@ -623,6 +623,8 @@ def new_map_config(request):
                         url = service.base_url
                     use_proxy = (callable(uses_proxy_route)
                                  and uses_proxy_route(service.base_url))
+                    if layer.alternate is not None:
+                        config["layerid"] = layer.alternate
                     maplayer = MapLayer(map=map_obj,
                                         name=layer.typename,
                                         ows_url=layer.ows_url,
