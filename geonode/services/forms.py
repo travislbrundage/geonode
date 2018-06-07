@@ -44,13 +44,13 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 def get_classifications():
-    #return [(x, str(x)) for x in getattr(settings, 'CLASSIFICATION_LEVELS', [])]
     classification_dict = getattr(settings, 'CLASSIFICATION_LEVELS', {})
     return [(x, str(x)) for x in list(classification_dict.keys())]
 
 
+
+
 def get_caveats():
-    #return [(x, str(x)) for x in getattr(settings, 'CAVEATS', [])]
     classification_dict = getattr(settings, 'CLASSIFICATION_LEVELS', {})
     caveats = []
 
