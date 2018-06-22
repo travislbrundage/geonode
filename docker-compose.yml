@@ -19,6 +19,8 @@ services:
     command: django-admin.py runserver 0.0.0.0:8000 --settings=geonode.settings
     env_file:
       - ./scripts/docker/env/production/django.env
+    stdin_open: true
+    tty: true
 
   celery:
     image: geonode/django

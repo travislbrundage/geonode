@@ -312,6 +312,9 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         'base.view_resourcebase',
         _PERMISSION_MSG_VIEW)
 
+    import ipdb
+    ipdb.set_trace()
+
     # assert False, str(layer_bbox)
     config = layer.attribute_config()
 

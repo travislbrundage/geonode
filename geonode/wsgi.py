@@ -28,3 +28,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "geonode.settings")
 # as well as any WSGI server configured to use this file.
 
 application = get_wsgi_application()
+
+import sys
+sys.path.append('/usr/src/app/pycharm-debug.egg')
+# import pydevd
+# pydevd.settrace(’locahost’, port=8000, stdoutToServer=True, stderrToServer=True, suspend=False)
