@@ -39,7 +39,7 @@ from .. import models
 from . import base
 
 try:
-    from exchange.pki.utils import (
+    from ssl_pki.utils import (
         has_pki_prefix,
         pki_to_proxy_route,
         pki_route_reverse,

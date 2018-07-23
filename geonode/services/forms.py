@@ -33,7 +33,7 @@ from geonode.base.models import TopicCategory, License
 from geonode.base.enumerations import UPDATE_FREQUENCIES
 from django.conf import settings
 try:
-    from exchange.pki.models import (
+    from ssl_pki.models import (
         has_ssl_config,
         ssl_config_for_url
     )

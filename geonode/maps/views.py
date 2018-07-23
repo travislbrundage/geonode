@@ -76,7 +76,7 @@ else:
     from geonode.utils import http_client
 
 try:
-    from exchange.pki.models import uses_proxy_route
+    from ssl_pki.models import uses_proxy_route
 except ImportError:
     uses_proxy_route = None
 

@@ -29,8 +29,8 @@ from .wms import WmsServiceHandler
 from .mapserver import MapserverServiceHandler
 
 try:
-    from exchange.pki.models import has_ssl_config
-    from exchange.pki.utils import pki_route
+    from ssl_pki.models import has_ssl_config
+    from ssl_pki.utils import pki_route
 except ImportError:
     has_ssl_config = None
     pki_route = None

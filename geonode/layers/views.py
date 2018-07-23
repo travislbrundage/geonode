@@ -74,7 +74,7 @@ if 'geonode.geoserver' in settings.INSTALLED_APPS:
 CONTEXT_LOG_FILE = ogc_server_settings.LOG_FILE
 
 try:
-    from exchange.pki.models import uses_proxy_route
+    from ssl_pki.models import uses_proxy_route
 except ImportError:
     uses_proxy_route = None
 

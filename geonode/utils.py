@@ -57,7 +57,7 @@ except ImportError:
     from django.utils import simplejson as json
 
 try:
-    from exchange.pki.models import uses_proxy_route
+    from ssl_pki.models import uses_proxy_route
 except ImportError:
     uses_proxy_route = None
 

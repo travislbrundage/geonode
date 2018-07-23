@@ -29,9 +29,9 @@ import requests
 import logging
 
 try:
-    from exchange.pki.models import has_ssl_config
-    from exchange.pki.views import pki_request
-    from exchange.pki.utils import (
+    from ssl_pki.models import has_ssl_config
+    from ssl_pki.views import pki_request
+    from ssl_pki.utils import (
         protocol_relative_url,
         protocol_relative_to_scheme,
     )

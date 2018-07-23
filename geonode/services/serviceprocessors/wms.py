@@ -33,7 +33,7 @@ from geonode.layers.utils import create_thumbnail
 from owslib.wms import WebMapService
 
 try:
-    from exchange.pki.utils import (
+    from ssl_pki.utils import (
         has_pki_prefix,
         pki_to_proxy_route,
         pki_route_reverse,
