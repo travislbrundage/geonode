@@ -112,9 +112,6 @@ setup(name='GeoNode',
         "gsimporter==1.0.0",  # (0.1 in ppa) FIXME
         "gisdata==0.5.4",
 
-        # elasticsearch-dsl app
-        "geonode-elasticsearch-app==0.2.1",
-
         # datetimepicker widget
         "django-bootstrap3-datetimepicker==2.2.3",
 
