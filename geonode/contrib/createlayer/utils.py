@@ -69,14 +69,11 @@ def create_gn_layer(workspace, datastore, name, title, owner_name):
         workspace=workspace.name,
         store=datastore.name,
         storeType='dataStore',
-        alternate='%s:%s' % (workspace.name, name),
+        alternate='{}'.format(name.encode('utf-8')),
+        typename='{}'.format(name.encode('utf-8')),
         title=title,
         owner=owner,
-        uuid=str(uuid.uuid4()),
-        bbox_x0=-180,
-        bbox_x1=180,
-        bbox_y0=-90,
-        bbox_y1=90
+        uuid=str(uuid.uuid4())
     )
     return layer
 
@@ -202,6 +199,31 @@ def create_gs_layer_style(name):
             pass
 
 
+def update_gs_layer_bounds(ft):
+    layer = Layer.objects.get(typename=ft)
+    gs_user = ogc_server_settings.credentials[0]
+    gs_password = ogc_server_settings.credentials[1]
+
+    cat = Catalog(ogc_server_settings.internal_rest, gs_user, gs_password)
+
+    # get workspace and store
+    workspace = cat.get_default_workspace()
+
+    xml = ("<featureType>"
+           "<enabled>true</enabled>"
+           "</featureType>")
+
+    url = ('%s/workspaces/%s/datastores/%s/featuretypes/%s.xml?recalculate=nativebbox,latlonbbox'
+           % (ogc_server_settings.internal_rest,
+              workspace.name, layer.store, layer.typename))
+    headers = {'Content-Type': 'application/xml'}
+    req = requests.put(url, data=xml, headers=headers, auth=(gs_user, gs_password))
+    if req.status_code != 200:
+        logger.error('Request status code was: %s' % req.status_code)
+        logger.error('Response was: %s' % req.text)
+        raise GeoNodeException("Layer could not be updated in GeoServer")
+
+
 def create_gs_layer(name, title, geometry_type, attributes=None):
     """
     Create an empty PostGIS layer in GeoServer with a given name, title,
@@ -220,7 +242,7 @@ def create_gs_layer(name, title, geometry_type, attributes=None):
     datastore = get_or_create_datastore(cat, workspace)
 
     # check if datastore is of PostGIS type
-    if datastore.type != 'PostGIS':
+    if not 'PostGIS' in datastore.type:
         msg = ("To use the createlayer application you must use PostGIS")
         logger.error(msg)
         raise GeoNodeException(msg)
@@ -251,7 +273,7 @@ def create_gs_layer(name, title, geometry_type, attributes=None):
            "<nativeName>{native_name}</nativeName>"
            "<title>{title}</title>"
            "<srs>EPSG:4326</srs>"
-           "<latLonBoundingBox><minx>-180</minx><maxx>180</maxx><miny>-90</miny><maxy>90</maxy>"
+           "<latLonBoundingBox><minx>-1</minx><maxx>0</maxx><miny>-1</miny><maxy>0</maxy>"
            "<crs>EPSG:4326</crs></latLonBoundingBox>"
            "{attributes}"
            "</featureType>").format(
