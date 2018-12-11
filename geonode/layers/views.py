@@ -264,7 +264,8 @@ def layer_detail(request, layername, template='layers/layer_detail.html'):
         config["styles"] = layer.default_style.name
 
     if layer.storeType == "remoteStore":
-        reprojected_bbox = bbox_to_projection(bbox, source_srid=layer.srid, target_srid=3857)
+        target_srid = 3857 if config["srs"] == 'EPSG:900913' else config["srs"]
+        reprojected_bbox = bbox_to_projection(bbox, source_srid=layer.srid, target_srid=target_srid)
         bbox = reprojected_bbox[:4]
         config['bbox'] = [float(coord) for coord in bbox]
         service = layer.service
