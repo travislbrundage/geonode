@@ -199,7 +199,11 @@ def bbox_to_projection(native_bbox, source_srid=4326, target_srid=4326):
     proj = source_srid
     minx, miny, maxx, maxy = [float(a) for a in box]
     try:
-        source_srid = int(proj.split(":")[1]) if proj and ':' in proj else int(proj)
+        if isinstance(proj, str):
+            if ':' in proj:
+                source_srid = int(proj.split(":")[1])
+        else:
+            source_srid = int(proj)
     except BaseException:
         source_srid = target_srid
 
