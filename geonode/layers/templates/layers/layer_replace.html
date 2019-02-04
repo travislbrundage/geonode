@@ -8,6 +8,13 @@
 
 {% block extra_head %}{{ block.super }}{% endblock %}
 
+{% block page_header %}
+<div class="page-header">
+  <a href="{{ layer.get_absolute_url }}" class="btn btn-primary pull-right">{% trans "Return to Layer" %}</a>
+  <h2 class="page-title">{% trans "Upload Layers" %}</h2>
+</div>
+{% endblock page_header %}
+
 {% block head %}
 
 {{ block.super }}
