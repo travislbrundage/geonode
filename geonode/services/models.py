@@ -56,11 +56,15 @@ class Service(ResourceBase):
             (enumerations.OPENGEOPORTAL, _('OpenGeoPortal'))
         )
     )
-    # with service, version and request etc stripped off
+    # allow a Service to have both a mapserver and featureserver endpoint
     base_url = models.URLField(
         unique=True,
         db_index=True
     )
+    #wfs_url = models.URLField(
+    #    unique=True,
+    #    db_index=True
+    #)
     version = models.CharField(
         max_length=10,
         null=True,
@@ -177,6 +181,10 @@ class Service(ResourceBase):
     def ptype(self):
         # Return the gxp ptype that should be used to display layers
         return enumerations.GXP_PTYPES[self.type]
+
+    #@property
+    #def base_url(self):
+    #    return self.wms_url if self.wms_url else self.wfs_url
 
     def get_absolute_url(self):
         return '/services/%i' % self.id
