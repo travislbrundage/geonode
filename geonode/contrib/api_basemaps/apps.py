@@ -18,23 +18,12 @@
 #
 #########################################################################
 
-import autocomplete_light
-
-from geonode.maps.models import Map
-
-autocomplete_light.autodiscover() # flake8: noqa
-
-from geonode.base.forms import ResourceBaseForm
+from django.apps import AppConfig
 
 
-class MapForm(ResourceBaseForm):
+class ApiBasemapsConfig(AppConfig):
+    name = 'geonode.contrib.api_basemaps'
+    verbose_name = 'Basemaps'
 
-    class Meta(ResourceBaseForm.Meta):
-        model = Map
-        exclude = ResourceBaseForm.Meta.exclude + (
-            'zoom',
-            'projection',
-            'center_x',
-            'center_y',
-            'tkeywords',
-        )
+    def ready(self):
+        pass
