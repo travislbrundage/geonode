@@ -134,6 +134,7 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
             instance = models.Service(
                 uuid=str(uuid4()),
                 type=self.service_type,
+                base_url=self.url,
                 method=self.indexing_method,
                 owner=owner,
                 parent=parent,
@@ -149,6 +150,8 @@ class MapserverServiceHandler(base.ServiceHandlerBase,
             instance.wfs_url = self.url
         else:
             instance.wms_url = self.url
+            # We assume the base_url "should" be a wms_url
+            instance.base_url = self.url
 
         return instance
 

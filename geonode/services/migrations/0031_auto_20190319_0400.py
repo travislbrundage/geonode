@@ -11,10 +11,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='service',
-            name='base_url',
-        ),
         migrations.AddField(
             model_name='service',
             name='wfs_url',
