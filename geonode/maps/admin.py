@@ -18,7 +18,7 @@
 #
 #########################################################################
 
-import autocomplete_light
+# import autocomplete_light
 
 from geonode.maps.models import Map, MapLayer, MapSnapshot
 from geonode.base.admin import MediaTranslationAdmin, ResourceBaseAdminForm
@@ -45,11 +45,22 @@ class MapAdmin(MediaTranslationAdmin):
     form = MapAdminForm
 
 
+'''
+class MapLayerAdminForm(autocomplete_light.ModelForm):
+
+    class Meta:
+        model = MapLayer
+        fields = '__all__'
+'''
+
+
 class MapLayerAdmin(admin.ModelAdmin):
     list_display = ('id', 'map', 'name')
     list_filter = ('map',)
     search_fields = ('map__title', 'name',)
-    form = autocomplete_light.modelform_factory(MapLayer, fields='__all__')
+    # form = MapLayerAdminForm
+    # TODO: How to replace this? Not even sure what is
+    # form = autocomplete_light.modelform_factory(MapLayer, fields='__all__')
 
 
 admin.site.register(Map, MapAdmin)

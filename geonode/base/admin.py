@@ -23,10 +23,11 @@ from django.contrib.admin import helpers
 from django.conf import settings
 from django.core.management import call_command
 from django.template.response import TemplateResponse
+from django import forms
 
-import autocomplete_light
+# import autocomplete_light
 import StringIO
-from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
+# from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
 
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
@@ -37,6 +38,8 @@ from guardian.admin import GuardedModelAdmin
 
 from geonode.base.models import (TopicCategory, SpatialRepresentationType, Region, RestrictionCodeType,
                                  ContactRole, Link, Backup, License, HierarchicalKeyword)
+
+# import xmodelform
 
 
 class MediaTranslationAdmin(TranslationAdmin, GuardedModelAdmin):
@@ -49,11 +52,27 @@ class MediaTranslationAdmin(TranslationAdmin, GuardedModelAdmin):
         }
 
 
-class BackupAdminForm(autocomplete_light.ModelForm):
+'''
+class BackupAdminForm(xmodelform.forms.XModelForm):
 
     class Meta:
         model = Backup
         fields = '__all__'
+
+
+class ContactRoleAdminForm(xmodelform.forms.XModelForm):
+
+    class Meta:
+        model = ContactRole
+        fields = '__all__'
+
+
+class LinkAdminForm(xmodelform.forms.XModelForm):
+
+    class Meta:
+        model = Link
+        fields = '__all__'
+'''
 
 
 def run(self, request, queryset):
@@ -122,7 +141,7 @@ class BackupAdmin(MediaTranslationAdmin):
     list_display_links = ('name',)
     date_hierarchy = 'date'
     readonly_fields = ('location',)
-    form = BackupAdminForm
+    # form = BackupAdminForm
     actions = [run, restore]
 
 
@@ -195,7 +214,7 @@ class ContactRoleAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     list_display = ('id', 'contact', 'resource', 'role')
     list_editable = ('contact', 'resource', 'role')
-    form = autocomplete_light.modelform_factory(ContactRole, fields='__all__')
+    # form = ContactRoleAdminForm
 
 
 class LinkAdmin(admin.ModelAdmin):
@@ -204,7 +223,7 @@ class LinkAdmin(admin.ModelAdmin):
     list_display = ('id', 'resource', 'extension', 'link_type', 'name', 'mime')
     list_filter = ('resource', 'extension', 'link_type', 'mime')
     search_fields = ('name', 'resource__title',)
-    form = autocomplete_light.modelform_factory(Link, fields='__all__')
+    # form = LinkAdminForm
 
 
 class HierarchicalKeywordAdmin(TreeAdmin):
@@ -222,7 +241,9 @@ admin.site.register(License, LicenseAdmin)
 admin.site.register(HierarchicalKeyword, HierarchicalKeywordAdmin)
 
 
-class ResourceBaseAdminForm(autocomplete_light.ModelForm):
+class ResourceBaseAdminForm(forms.ModelForm):
+    list_display_links = ('id', )
+'''
     # We need to specify autocomplete='TagAutocomplete' or admin views like
     # /admin/maps/map/2/ raise exceptions during form rendering.
     # But if we specify it up front, TaggitField.__init__ throws an exception
@@ -230,3 +251,4 @@ class ResourceBaseAdminForm(autocomplete_light.ModelForm):
     # after that's done.
     keywords = TaggitField(required=False)
     keywords.widget = TaggitWidget(autocomplete='HierarchicalKeywordAutocomplete')
+'''

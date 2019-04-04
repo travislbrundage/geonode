@@ -18,11 +18,12 @@
 #
 #########################################################################
 
-import autocomplete_light
+# import autocomplete_light
 
 from geonode.maps.models import Map
 
-autocomplete_light.autodiscover() # flake8: noqa
+# TODO: What did this do?
+# autocomplete_light.autodiscover() # flake8: noqa
 
 from geonode.base.forms import ResourceBaseForm
 

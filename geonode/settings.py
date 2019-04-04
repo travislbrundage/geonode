@@ -314,7 +314,7 @@ INSTALLED_APPS = (
     'django_extensions',
     #'geonode-client',
     # 'haystack',
-    'autocomplete_light',
+    # 'autocomplete_light',
     'mptt',
     # 'modeltranslation',
     # 'djkombu',

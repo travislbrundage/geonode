@@ -18,8 +18,8 @@
 #
 #########################################################################
 
-import autocomplete_light
-from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
+# import autocomplete_light
+# from autocomplete_light.contrib.taggit_field import TaggitField, TaggitWidget
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -31,6 +31,7 @@ from modeltranslation.forms import TranslationModelForm
 
 from geonode.base.models import TopicCategory, Region
 from geonode.people.models import Profile
+# import xmodelform
 
 
 class CategoryChoiceField(forms.ModelChoiceField):
@@ -87,8 +88,7 @@ class ResourceBaseForm(TranslationModelForm):
         label=_("Owner"),
         required=False,
         queryset=Profile.objects.exclude(
-            username='AnonymousUser'),
-        widget=autocomplete_light.ChoiceWidget('ProfileAutocomplete'))
+            username='AnonymousUser'))
 
     _date_widget_options = {
         "icon_attrs": {"class": "fa fa-calendar"},
@@ -127,22 +127,19 @@ class ResourceBaseForm(TranslationModelForm):
         label=_("Point of Contact"),
         required=False,
         queryset=Profile.objects.exclude(
-            username='AnonymousUser'),
-        widget=autocomplete_light.ChoiceWidget('ProfileAutocomplete'))
+            username='AnonymousUser'))
 
     metadata_author = forms.ModelChoiceField(
         empty_label=_("Person outside GeoNode (fill form)"),
         label=_("Metadata Author"),
         required=False,
         queryset=Profile.objects.exclude(
-            username='AnonymousUser'),
-        widget=autocomplete_light.ChoiceWidget('ProfileAutocomplete'))
+            username='AnonymousUser'))
 
-    keywords = TaggitField(
-        label=_("Keywords"),
-        required=False,
-        help_text=_("A space or comma-separated list of keywords"),
-        widget=TaggitWidget('HierarchicalKeywordAutocomplete'))
+    # keywords = TaggitField(
+    #     label=_("Keywords"),
+    #     required=False,
+    #     help_text=_("A space or comma-separated list of keywords"))
 
     regions = TreeNodeMultipleChoiceField(
         label=_("Regions"),

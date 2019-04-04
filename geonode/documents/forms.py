@@ -21,7 +21,7 @@
 import json
 import os
 import re
-import autocomplete_light
+# import autocomplete_light
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -34,7 +34,8 @@ from geonode.documents.models import Document
 from geonode.maps.models import Map
 from geonode.layers.models import Layer
 
-autocomplete_light.autodiscover() # flake8: noqa
+# TODO: What did this do?
+# autocomplete_light.autodiscover() # flake8: noqa
 
 from geonode.base.forms import ResourceBaseForm
 
