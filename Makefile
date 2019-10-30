@@ -2,6 +2,23 @@
 DOCKER_HOST := $(DOCKER_HOST)
 DOCKER_HOST_IP := `docker run --net=host codenvy/che-ip:nightly`
 
+start:
+	docker-compose -f docker-compose.async.yml -f docker-compose.development.yml up -d
+
+start_logs:
+	docker-compose -f docker-compose.async.yml -f docker-compose.development.yml up
+
+stop:
+	docker-compose -f docker-compose.async.yml -f docker-compose.development.yml down
+
+logs:
+	docker-compose logs --follow
+
+ssh:
+	docker exec -it django4geonode /bin/bash
+
+restart: stop start
+
 auto-up:
 	# bring up the services with proper environment variables
 	unset DOCKERHOST; \
@@ -36,25 +53,31 @@ migrate_setup: migrate
 wait:
 	sleep 5
 
-logs:
-	docker-compose logs --follow
-
 down:
 	docker-compose down
 
 pull:
 	docker-compose pull
 
-smoketest: up
-	docker-compose exec django python manage.py test geonode.tests.smoke --noinput --nocapture --detailed-errors --verbosity=1 --failfast
-
-unittest: up
-	docker-compose exec django python manage.py test geonode.people.tests geonode.base.tests geonode.layers.tests geonode.maps.tests geonode.proxy.tests geonode.security.tests geonode.social.tests geonode.catalogue.tests geonode.documents.tests geonode.api.tests geonode.groups.tests geonode.services.tests geonode.geoserver.tests geonode.upload.tests geonode.tasks.tests --noinput --failfast
-
-test: smoketest unittest
-
 reset: down up wait sync
 
 hardreset: pull build reset
 
 develop: pull build up sync
+
+start_test:
+	docker-compose -f docker-compose.async.yml -f docker-compose.development.yml up -d
+	unset DJANGO_SETTINGS_MODULE; \
+	export DJANGO_SETTINGS_MODULE='geonode.test_settings';
+
+smoke_test: start
+	coverage run --branch --source=geonode manage.py test geonode.tests.smoke --noinput --failfast
+
+unit_test: start
+	coverage run --branch --source=geonode manage.py test geonode.people.tests geonode.base.tests geonode.layers.tests geonode.maps.tests geonode.proxy.tests geonode.security.tests geonode.social.tests geonode.catalogue.tests geonode.documents.tests geonode.api.tests geonode.groups.tests geonode.services.tests geonode.geoserver.tests geonode.upload.tests --noinput --failfast
+
+# TODO: Need proper setup for integration tests
+integration_test: start
+	coverage run --branch --source=geonode manage.py test geonode.monitoring.tests.integration geonode.upload.tests.integration geonode.tests.integration
+
+test: smoke_test unit_test
