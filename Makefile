@@ -71,13 +71,13 @@ start_test:
 	export DJANGO_SETTINGS_MODULE='geonode.test_settings';
 
 smoke_test: start
-	coverage run --branch --source=geonode manage.py test geonode.tests.smoke --noinput --failfast
+	coverage run --branch --source=geonode manage.py test geonode.tests.smoke --noinput
 
 unit_test: start
-	coverage run --branch --source=geonode manage.py test geonode.people.tests geonode.base.tests geonode.layers.tests geonode.maps.tests geonode.proxy.tests geonode.security.tests geonode.social.tests geonode.catalogue.tests geonode.documents.tests geonode.api.tests geonode.groups.tests geonode.services.tests geonode.geoserver.tests geonode.upload.tests --noinput --failfast
+	coverage run --branch --source=geonode manage.py test geonode.people.tests geonode.base.tests geonode.layers.tests geonode.maps.tests geonode.proxy.tests geonode.security.tests geonode.social.tests geonode.catalogue.tests geonode.documents.tests geonode.api.tests geonode.groups.tests geonode.services.tests geonode.geoserver.tests geonode.upload.tests --noinput
 
 # TODO: Need proper setup for integration tests
 integration_test: start
-	coverage run --branch --source=geonode manage.py test geonode.monitoring.tests.integration geonode.upload.tests.integration geonode.tests.integration
+	coverage run --branch --source=geonode manage.py test geonode.monitoring.tests.integration geonode.upload.tests.integration geonode.tests.integration --noinput
 
 test: smoke_test unit_test
