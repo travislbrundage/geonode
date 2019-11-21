@@ -851,6 +851,7 @@ def test_bdd(options):
 
 @task
 def test_javascript(options):
+    # This is out of date
     with pushd('geonode/static/geonode'):
         sh('./run-tests.sh')
 
