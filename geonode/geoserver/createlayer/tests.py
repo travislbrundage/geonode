@@ -91,12 +91,14 @@ class CreateLayerCoreTest(GeoNodeBaseTestSupport):
         """
         internal_apps_tests = os.environ.get('TEST_RUN_INTERNAL_APPS', None)
         if not internal_apps_tests:
+            # This line is a problem b/c settings doesn't have this
             internal_apps_tests = settings.internal_apps_tests
 
         if internal_apps_tests and not internal_apps_tests:
             layer_name = 'point_layer'
             layer_title = 'A layer for points'
 
+            # This create layer call is what doesn't work
             create_layer(
                 layer_name,
                 layer_title,
@@ -144,6 +146,7 @@ class CreateLayerCoreTest(GeoNodeBaseTestSupport):
         """
         internal_apps_tests = os.environ.get('TEST_RUN_INTERNAL_APPS', None)
         if not internal_apps_tests:
+            # Settings doesn't have this attribute
             internal_apps_tests = settings.internal_apps_tests
 
         if internal_apps_tests and not internal_apps_tests:
@@ -159,6 +162,7 @@ class CreateLayerCoreTest(GeoNodeBaseTestSupport):
             layer_name = 'attributes_layer'
             layer_title = 'A layer with attributes'
 
+            # This doesn't work for some reason
             create_layer(
                 layer_name,
                 layer_title,

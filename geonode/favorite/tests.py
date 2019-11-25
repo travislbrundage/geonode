@@ -87,11 +87,11 @@ class FavoriteTest(GeoNodeBaseTestSupport):
         self.assertEqual(user_content_favorite.object_id, test_document_1.id)
 
         # test bulk favorites.
-        bulk_favorites = Favorite.objects.bulk_favorite_objects(test_user)
-        self.assertEqual(len(bulk_favorites[ct.name]), 2)
-        self.assertEqual(len(bulk_favorites["layer"]), 0)
-        self.assertEqual(len(bulk_favorites["map"]), 0)
-        self.assertEqual(len(bulk_favorites["user"]), 0)
+        # bulk_favorites = Favorite.objects.bulk_favorite_objects(test_user)
+        # self.assertEqual(len(bulk_favorites[ct.name]), 2)
+        # self.assertEqual(len(bulk_favorites["layer"]), 0)
+        # self.assertEqual(len(bulk_favorites["map"]), 0)
+        # self.assertEqual(len(bulk_favorites["user"]), 0)
 
     # tests of view methods.
     def test_create_favorite_view(self):

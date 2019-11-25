@@ -416,6 +416,8 @@ class BulkPermissionsTests(ResourceTestCaseMixin, GeoNodeBaseTestSupport):
             anonymous_group, created = Group.objects.get_or_create(name='anonymous')
 
             # Upload to GeoServer
+            # Same reason this test fails, geoserver_upload fails
+            # due to workspace or something
             saved_layer = geoserver_upload(
                 Layer(),
                 os.path.join(
@@ -635,6 +637,8 @@ class BulkPermissionsTests(ResourceTestCaseMixin, GeoNodeBaseTestSupport):
             thefile = os.path.join(
                 gisdata.VECTOR_DATA,
                 'san_andres_y_providencia_poi.shp')
+            # This upload does not work b/c of workspace??
+            # Entire test won't work now b/c of this
             layer = geoserver_upload(
                 test_perm_layer,
                 thefile,
@@ -1243,6 +1247,8 @@ class GisBackendSignalsTests(ResourceTestCaseMixin, GeoNodeBaseTestSupport):
             check_geoserver_is_up()
 
             admin_user = get_user_model().objects.get(username="admin")
+            # Same thing, fails b/c geoserver_upload doesn't work
+            # due to workspace??
             saved_layer = geoserver_upload(
                 test_perm_layer,
                 os.path.join(

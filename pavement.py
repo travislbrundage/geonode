@@ -850,10 +850,21 @@ def test_bdd(options):
 
 
 @task
+@cmdopts([
+    ('local=', 'l', 'Set to True if running bdd tests locally')
+])
+def test_selenium(options):
+    """
+    Run GeoNode's selenium tests
+    """
+    call_task('reset_hard')
+
+
+@task
 def test_javascript(options):
-    # This is out of date
-    with pushd('geonode/static/geonode'):
-        sh('./run-tests.sh')
+    sh('cd geonode/static')
+    sh('npm install')
+    sh('grunt test')
 
 
 @task
