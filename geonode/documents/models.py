@@ -31,6 +31,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.urlresolvers import reverse
 from django.contrib.staticfiles import finders
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.fields import GenericRelation
 
 from geonode.layers.models import Layer
 from geonode.base.models import ResourceBase, resourcebase_post_save, Link
@@ -38,6 +39,7 @@ from geonode.documents.enumerations import DOCUMENT_TYPE_MAP, DOCUMENT_MIMETYPE_
 from geonode.maps.signals import map_changed_signal
 from geonode.maps.models import Map
 from geonode.security.utils import remove_object_permissions
+from geonode.favorite.models import Favorite
 
 IMGTYPES = ['jpg', 'jpeg', 'tif', 'tiff', 'png', 'gif']
 
@@ -59,6 +61,8 @@ class Document(ResourceBase):
     extension = models.CharField(max_length=128, blank=True, null=True)
 
     doc_type = models.CharField(max_length=128, blank=True, null=True)
+
+    favorites = GenericRelation(Favorite)
 
     doc_url = models.URLField(
         blank=True,
@@ -220,6 +224,7 @@ def update_documents_extent(sender, **kwargs):
 
 def pre_delete_document(instance, sender, **kwargs):
     remove_object_permissions(instance.get_self_resource())
+    # maybe need to remove the favorites from the instance here?
 
 
 signals.pre_save.connect(pre_save_document, sender=Document)

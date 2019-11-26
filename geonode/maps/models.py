@@ -34,6 +34,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.core.cache import cache
+from django.contrib.contenttypes.fields import GenericRelation
 
 from geonode.layers.models import Layer
 from geonode.base.models import ResourceBase, resourcebase_post_save
@@ -48,6 +49,7 @@ from geonode.utils import (GXPMapBase,
 
 from geonode import geoserver, qgis_server  # noqa
 from geonode.utils import check_ogc_backend
+from geonode.favorite.models import Favorite
 
 from deprecated import deprecated
 from agon_ratings.models import OverallRating
@@ -91,6 +93,8 @@ class Map(ResourceBase, GXPMapBase):
         max_length=255,
         blank=True)
     # Full URL for featured map view, ie http://domain/someview
+
+    favorites = GenericRelation(Favorite)
 
     def __unicode__(self):
         return '%s by %s' % (

@@ -31,11 +31,13 @@ from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.contrib.contenttypes.fields import GenericRelation
 
 from taggit.managers import TaggableManager
 
 from geonode.base.enumerations import COUNTRIES
 from geonode.groups.models import GroupProfile
+from geonode.favorite.models import Favorite
 # from geonode.notifications_helper import send_notification
 
 from allauth.account.signals import user_signed_up
@@ -132,6 +134,8 @@ class Profile(AbstractUser):
         choices=TIMEZONES,
         blank=True,
     )
+
+    favorites = GenericRelation(Favorite)
 
     def __init__(self, *args, **kwargs):
         super(Profile, self).__init__(*args, **kwargs)

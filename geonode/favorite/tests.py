@@ -27,8 +27,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from django.db.models import Max
 
-from .models import Favorite
+from geonode.favorite.models import Favorite
+from geonode.favorite.utils import bulk_favorite_objects
 from geonode.documents.models import Document
+from geonode.layers.models import Layer
+from geonode.maps.models import Map
 
 
 class FavoriteTest(GeoNodeBaseTestSupport):
@@ -60,31 +63,39 @@ class FavoriteTest(GeoNodeBaseTestSupport):
         self.assertEqual(favorites[0].content_type, ct)
 
         # test all favorites for specific user.
-        favorites_for_user = Favorite.objects.favorites_for_user(test_user)
-        self.assertEqual(favorites_for_user.count(), 2)
+        self.assertEqual(Favorite.objects.filter(user=test_user).count(), 2)
 
-        # test document favorites for user.
-        document_favorites = Favorite.objects.favorite_documents_for_user(test_user)
-        self.assertEqual(document_favorites.count(), 2)
+        # test all document favorites for user.
+        ct_doc = ContentType.objects.get_for_model(Document)
+        document_favorites = Favorite.objects.filter(
+            user=test_user, content_type=ct_doc).count()
+        self.assertEqual(document_favorites, 2)
 
-        # test layer favorites for user.
-        layer_favorites = Favorite.objects.favorite_layers_for_user(test_user)
-        self.assertEqual(layer_favorites.count(), 0)
+        # test all layer favorites for user.
+        ct_layer = ContentType.objects.get_for_model(Layer)
+        layer_favorites = Favorite.objects.filter(
+            user=test_user, content_type=ct_layer).count()
+        self.assertEqual(layer_favorites, 0)
 
-        # test map favorites for user.
-        map_favorites = Favorite.objects.favorite_maps_for_user(test_user)
-        self.assertEqual(map_favorites.count(), 0)
+        # test all map favorites for user.
+        ct_map = ContentType.objects.get_for_model(Map)
+        map_favorites = Favorite.objects.filter(
+            user=test_user, content_type=ct_map).count()
+        self.assertEqual(map_favorites, 0)
 
-        # test user favorites for user.
-        user_favorites = Favorite.objects.favorite_users_for_user(test_user)
-        self.assertEqual(user_favorites.count(), 0)
+        # test all user favorites for user.
+        ct_user = ContentType.objects.get_for_model(get_user_model())
+        user_favorites = Favorite.objects.filter(
+            user=test_user, content_type=ct_user).count()
+        self.assertEqual(user_favorites, 0)
 
-        # test favorite for user and a specific content object.
-        user_content_favorite = Favorite.objects.favorite_for_user_and_content_object(test_user, test_document_1)
-        self.assertEqual(user_content_favorite.object_id, test_document_1.id)
+        # test favorite exists for a user and a specific content object.
+        existing_favorite = Favorite.objects.user_has_favorited_content_object(
+            test_user, test_document_1)
+        self.assertTrue(existing_favorite)
 
         # test bulk favorites.
-        bulk_favorites = Favorite.objects.bulk_favorite_objects(test_user)
+        bulk_favorites = bulk_favorite_objects(test_user)
         self.assertEqual(len(bulk_favorites[ct.name]), 2)
         self.assertEqual(len(bulk_favorites["layer"]), 0)
         self.assertEqual(len(bulk_favorites["map"]), 0)

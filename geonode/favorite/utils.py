@@ -19,7 +19,13 @@
 #########################################################################
 
 from django.core.urlresolvers import reverse
-import models
+from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
+
+from geonode.favorite.models import Favorite
+from geonode.documents.models import Document
+from geonode.layers.models import Layer
+from geonode.maps.models import Map
 
 
 def get_favorite_info(user, content_object):
@@ -32,14 +38,29 @@ def get_favorite_info(user, content_object):
     result = {}
 
     url_content_type = type(content_object).__name__.lower()
-    result["add_url"] = reverse("add_favorite_{}".format(url_content_type), args=[content_object.pk])
+    result["add_url"] = reverse("add_favorite_{}".format(url_content_type),
+                                args=[content_object.pk])
 
-    existing_favorite = models.Favorite.objects.favorite_for_user_and_content_object(user, content_object)
+    # Here is where that one model function is used
+    existing_favorite = Favorite.objects.user_has_favorited_content_object(
+        user, content_object)
 
     if existing_favorite:
         result["has_favorite"] = "true"
-        result["delete_url"] = reverse("delete_favorite", args=[existing_favorite.pk])
+        result["delete_url"] = reverse("delete_favorite",
+                                       args=[content_object.pk])
     else:
         result["has_favorite"] = "false"
 
     return result
+
+
+def bulk_favorite_objects(user):
+    """
+    get the actual favorite objects for a user as a dict by content_type
+    """
+    favs = dict()
+    for m in (Document, Map, Layer, get_user_model()):
+        ct = ContentType.objects.get_for_model(m)
+        favs[ct.name] = Favorite.objects.filter(user=user, content_type=ct)
+    return favs

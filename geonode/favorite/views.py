@@ -82,5 +82,5 @@ def get_favorites(req):
     return render(
         req,
         "favorite/favorite_list.html",
-        context={'favorites': models.Favorite.objects.favorites_for_user(req.user), }
+        context={'favorites': models.Favorite.objects.filter(user=req.user), }
     )

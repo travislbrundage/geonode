@@ -29,12 +29,14 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.core.files.storage import FileSystemStorage
+from django.contrib.contenttypes.fields import GenericRelation
 from geonode.base.models import ResourceBase, ResourceBaseManager, resourcebase_post_save
 from geonode.people.utils import get_valid_user
 from agon_ratings.models import OverallRating
 from geonode.utils import check_shp_columnnames
 from geonode.security.models import PermissionLevelMixin
 from geonode.security.utils import remove_object_permissions
+from geonode.favorite.models import Favorite
 
 from ..services.enumerations import CASCADED
 from ..services.enumerations import INDEXED
@@ -154,6 +156,8 @@ class Layer(ResourceBase):
     charset = models.CharField(max_length=255, default='UTF-8')
 
     upload_session = models.ForeignKey('UploadSession', blank=True, null=True)
+
+    favorites = GenericRelation(Favorite)
 
     def is_vector(self):
         return self.storeType == 'dataStore'
