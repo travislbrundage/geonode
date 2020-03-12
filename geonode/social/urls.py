@@ -21,6 +21,9 @@
 from django.conf.urls import url
 from geonode.social.views import RecentActivity, UserActivity
 
+app_name = "social"
+
+
 urlpatterns = [  # '',
     url(r'^recent-activity$',
         RecentActivity.as_view(), name='recent-activity'),

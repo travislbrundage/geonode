@@ -22,6 +22,9 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = "services"
+
+
 urlpatterns = [
     # 'geonode.services.views',
     url(r'^$', views.services, name='services'),

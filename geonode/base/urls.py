@@ -25,6 +25,8 @@ from .views import (
     ResourceBaseAutocomplete, RegionAutocomplete,
     HierarchicalKeywordAutocomplete, ThesaurusKeywordLabelAutocomplete)
 
+app_name = "base"
+
 
 urlpatterns = [
     url(

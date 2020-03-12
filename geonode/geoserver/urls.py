@@ -22,6 +22,9 @@ from django.conf import settings
 from django.conf.urls import url
 from . import views
 
+app_name = "geoserver"
+
+
 urlpatterns = [  # 'geonode.geoserver.views',
     # REST Endpoints
     url(r'^rest/stores/(?P<store_type>\w+)/$',

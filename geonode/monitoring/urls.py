@@ -23,6 +23,9 @@ from django.conf.urls import url
 
 from geonode.monitoring import views
 
+app_name = "monitoring"
+
+
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     # serve calculated metrics

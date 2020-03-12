@@ -23,6 +23,9 @@ from django.views.generic import TemplateView
 from .views import ProfileAutocomplete
 from . import views
 
+app_name = "people"
+
+
 urlpatterns = [  # 'geonode.people.views',
     url(r'^$', TemplateView.as_view(template_name='people/profile_list.html'),
         name='profile_browse'),

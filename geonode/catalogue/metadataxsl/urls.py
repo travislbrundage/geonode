@@ -21,6 +21,9 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "xsl"
+
+
 urlpatterns = [
     url(r'^xsl/(?P<id>\d+)$', views.prefix_xsl_line, name='prefix_xsl_line')
 ]

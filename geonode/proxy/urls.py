@@ -22,6 +22,9 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = "proxy"
+
+
 urlpatterns = [  # 'geonode.proxy.views',
     url(r'^proxy/', views.proxy, name='proxy'),
     url(r'^download/(?P<resourceid>[^/]*)$', views.download, name='download'),

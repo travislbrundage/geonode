@@ -55,6 +55,9 @@ sitemaps = {
     "map": MapSitemap
 }
 
+app_name = "geonode"
+
+
 homepage = register_url_event()(TemplateView.as_view(template_name='index.html'))
 
 urlpatterns = [

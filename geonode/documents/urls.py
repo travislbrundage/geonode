@@ -27,6 +27,9 @@ from .views import DocumentAutocomplete
 from . import views
 from geonode.monitoring import register_url_event
 
+app_name = "documents"
+
+
 js_info_dict = {
     'packages': ('geonode.documents',),
 }

@@ -21,11 +21,14 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "csw"
+
+
 urlpatterns = [
-    url(r'^csw$', views.csw_global_dispatch, name='csw_global_dispatch'),
+    url(r'^csw$', views.csw_global_dispatch, name='global_dispatch'),
     url(r'^opensearch$', views.opensearch_dispatch, name='opensearch_dispatch'),
     url(r'^csw_to_extra_format/(?P<layeruuid>[^/]*)/(?P<resname>[^/]*).txt$',
-        views.csw_render_extra_format_txt, name="csw_render_extra_format_txt"),
+        views.csw_render_extra_format_txt, name="render_extra_format_txt"),
     url(r'^csw_to_extra_format/(?P<layeruuid>[^/]*)/(?P<resname>[^/]*).html$',
-        views.csw_render_extra_format_html, name="csw_render_extra_format_html")
+        views.csw_render_extra_format_html, name="render_extra_format_html")
 ]

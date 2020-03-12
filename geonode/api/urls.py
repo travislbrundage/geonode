@@ -23,6 +23,8 @@ from tastypie.api import Api
 from . import api as resources
 from . import resourcebase_api as resourcebase_resources
 
+app_name = "api"
+
 api = Api(api_name='api')
 
 api.register(resources.GroupCategoryResource())

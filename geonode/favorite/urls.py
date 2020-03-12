@@ -21,6 +21,9 @@
 from django.conf.urls import url
 from . import views
 
+app_name = "favorite"
+
+
 urlpatterns = [
     url(
         r'^document/(?P<id>\d+)$',

@@ -35,6 +35,8 @@ from geonode.qgis_server.views import (
     download_qlr,
     qml_style, set_thumbnail, default_qml_style)
 
+app_name = "qgis_server"
+
 
 urlpatterns = [
     # Specific for a QGIS Layer

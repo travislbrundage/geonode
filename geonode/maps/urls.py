@@ -27,6 +27,8 @@ from geonode.monitoring import register_url_event
 
 from . import views
 
+app_name = "maps"
+
 js_info_dict = {
     'packages': ('geonode.maps', ),
 }

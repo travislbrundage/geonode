@@ -23,6 +23,9 @@ from geonode.upload.views import UploadFileCreateView, UploadFileDeleteView
 
 from . import views
 
+app_name = "upload"
+
+
 urlpatterns = [  # 'geonode.upload.views',
     url(r'^new/$', UploadFileCreateView.as_view(),
         name='data_upload_new'),
